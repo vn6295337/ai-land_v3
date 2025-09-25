@@ -9,6 +9,7 @@
     "build": "npm run security:check && vite build --config config/build/vite.config.ts",
     "build:dev": "vite build --mode development --config config/build/vite.config.ts",
     "build:unsafe": "vite build --config config/build/vite.config.ts",
+    "build:test": "NODE_ENV=production vite build --config config/build/vite.config.ts",
     "lint": "eslint . --config config/quality/eslint.config.js",
     "preview": "vite preview --config config/build/vite.config.ts",
     "predeploy": "npm run build",

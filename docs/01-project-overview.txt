@@ -1,0 +1,145 @@
+================================================================================
+AI MODELS DASHBOARD - PROJECT OVERVIEW
+================================================================================
+Version: 3.0
+Date: 2025-09-21
+Purpose: START HERE - Navigation guide for modularization initiative
+
+================================================================================
+0.1 WHAT IS THIS PROJECT?
+================================================================================
+
+MISSION:
+Transform AI Models Dashboard from monolithic React components into enterprise-ready, scalable architecture.
+
+PROBLEM STATEMENT:
+• 857-line components breaking maintainability
+• Security vulnerability (hardcoded credentials)
+• No centralized state management
+• Performance issues at scale
+
+SOLUTION APPROACH:
+Movie script logic: Problem → Solution → Implementation → Validation
+
+================================================================================
+0.2 DOCUMENT FLOW - READ IN ORDER
+================================================================================
+
+START HERE → 01-project-overview.txt (THIS DOCUMENT)
+    ↓
+    What problems exist now?
+    02-current-state.txt
+    ↓
+    What solutions do we need?
+    03-solution-approach.txt
+    ↓
+    How do we implement solutions?
+    04-solution-implementation-checklist.txt
+    ↓
+    How do we trace requirements?
+    05-traceability-matrix.txt
+
+================================================================================
+0.3 NUMBERED TRACEABILITY SYSTEM
+================================================================================
+
+Each document uses numbered sections for cross-referencing:
+
+02-current-state.txt:
+├── Problems 1-34 organized in 6 categories
+├── I. Security Issues (Problems 1-3)
+├── II. Component Architecture Issues (Problems 4-10)
+├── III. State Management Issues (Problems 11-16)
+├── IV. Performance Issues (Problems 17-22)
+├── V. Testing Infrastructure Issues (Problems 23-27)
+└── VI. Development Process Issues (Problems 28-34)
+
+03-solution-approach.txt:
+├── Solutions 1.1-34.2 with atomic task breakdown
+├── 118 total solutions mapped to problems
+└── Detailed implementation steps for complex solutions
+
+04-solution-implementation-checklist.txt:
+├── 290 atomic implementation tasks
+├── Execution-ordered checklist with dependencies
+└── Phase-based organization with progress tracking
+
+05-traceability-matrix.txt:
+├── Bidirectional Problem → Solution → Task mapping
+├── Complete traceability for all 34 problems
+└── Progress tracking synchronized with checklist
+
+================================================================================
+0.4 PROJECT SCOPE
+================================================================================
+
+IN SCOPE:
+✓ Component modularization (<200 lines each)
+✓ Security vulnerability fixes
+✓ State management implementation
+✓ Testing infrastructure
+✓ Performance optimization
+
+OUT OF SCOPE:
+✗ Backend API changes
+✗ Database schema modifications
+✗ New feature development
+✗ UI/UX design changes
+
+================================================================================
+0.5 SUCCESS CRITERIA PREVIEW
+================================================================================
+
+QUANTITATIVE GOALS:
+• Reduce largest component from 857 → <200 lines
+• Eliminate hardcoded credentials (0 instances)
+• Achieve 85%+ test coverage
+• Improve Core Web Vitals by 40%
+
+QUALITATIVE GOALS:
+• Developer velocity improvement
+• Maintainable codebase
+• Scalable architecture foundation
+• Production-ready reliability
+
+================================================================================
+0.6 DOCUMENT BRIDGE PATTERN
+================================================================================
+
+Each document follows this pattern:
+
+DOCUMENT END:
+================================================================================
+NEXT STEPS → [next-document-name].txt
+Purpose: [why read next document]
+Focus: [what next document covers]
+================================================================================
+
+DOCUMENT START:
+================================================================================
+BUILDING ON: [previous-document-name].txt
+This document: [current purpose]
+Previous established: [what was covered before]
+================================================================================
+
+================================================================================
+0.7 QUICK REFERENCE
+================================================================================
+
+PHASES:
+• Phase 1 : Security
+• Phase 2 : Modularization
+• Phase 3 : State Management
+• Phase 4 : Testing & Performance
+
+KEY TECHNOLOGIES:
+• React 18 + TypeScript
+• Zustand (state management)
+• Vitest (testing)
+• Supabase (backend)
+
+================================================================================
+NEXT STEPS → 02-current-state.txt
+Purpose: Understand specific problems requiring solutions
+Focus: Comprehensive problem inventory with 34 identified issues
+================================================================================

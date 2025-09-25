@@ -1,0 +1,60 @@
+# CodeQL configuration for AI Models Discovery Dashboard
+name: "AI Models Discovery Dashboard CodeQL Config"
+
+# Disable default queries and use custom query suites
+disable-default-queries: false
+
+# Query suites to run
+queries:
+  - uses: security-extended
+  - uses: security-and-quality
+
+# Paths to include in analysis
+paths:
+  - src/
+  - v2/30-configuration/
+  - v2/50-scripts/
+  - "*.js"
+  - "*.jsx"
+  - "*.ts"
+  - "*.tsx"
+  - "*.py"
+
+# Paths to ignore
+paths-ignore:
+  - node_modules/
+  - dist/
+  - build/
+  - coverage/
+  - "**/*.test.js"
+  - "**/*.test.jsx"
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.js"
+  - "**/*.spec.jsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/__tests__/"
+  - "**/__mocks__/"
+  - ".git/"
+  - ".github/"
+  - ".vscode/"
+  - ".idea/"
+
+# Language-specific configuration
+packs:
+  javascript:
+    - codeql/javascript-queries:AlertSuppression.ql
+    - codeql/javascript-queries:Security/CWE-079/XSS.ql
+    - codeql/javascript-queries:Security/CWE-089/SqlInjection.ql
+    - codeql/javascript-queries:Security/CWE-094/CodeInjection.ql
+    - codeql/javascript-queries:Security/CWE-522/DecompressionBomb.ql
+    - codeql/javascript-queries:Security/CWE-601/ClientSideUrlRedirect.ql
+    - codeql/javascript-queries:Security/CWE-798/HardcodedCredentials.ql
+
+  python:
+    - codeql/python-queries:AlertSuppression.ql
+    - codeql/python-queries:Security/CWE-079/XSS.ql
+    - codeql/python-queries:Security/CWE-089/SqlInjection.ql
+    - codeql/python-queries:Security/CWE-094/CodeInjection.ql
+    - codeql/python-queries:Security/CWE-798/HardcodedCredentials.ql

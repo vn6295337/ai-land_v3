@@ -1,0 +1,233 @@
+/* SearchBar Component Styles */
+
+.searchContainer {
+  @apply relative w-full;
+}
+
+.inputWrapper {
+  @apply relative;
+}
+
+.inputIcon {
+  @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none;
+}
+
+.searchIcon {
+  @apply w-4 h-4 text-gray-400;
+}
+
+.loadingIcon {
+  @apply animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full;
+}
+
+.searchInput {
+  @apply w-full pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200;
+}
+
+.searchInput:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Dark mode styles */
+.dark .searchInput {
+  @apply bg-gray-800 text-gray-100 placeholder-gray-400 border-gray-600;
+}
+
+.dark .searchInput:focus {
+  @apply ring-blue-400 border-blue-400;
+}
+
+.clearButton {
+  @apply absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-700 transition-colors cursor-pointer;
+}
+
+.clearIcon {
+  @apply w-4 h-4 text-gray-400 hover:text-gray-600;
+}
+
+.dark .clearIcon {
+  @apply text-gray-500 hover:text-gray-300;
+}
+
+/* Suggestions Dropdown */
+.suggestionsDropdown {
+  @apply absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto;
+}
+
+.dark .suggestionsDropdown {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.suggestionItem {
+  @apply w-full px-3 py-2 text-left text-sm flex items-center justify-between hover:bg-gray-50 focus:bg-gray-50 focus:outline-none transition-colors duration-150 text-gray-900;
+}
+
+.dark .suggestionItem {
+  @apply text-gray-100 hover:bg-gray-700 focus:bg-gray-700;
+}
+
+.suggestionItemActive {
+  @apply bg-blue-50 text-blue-900;
+}
+
+.dark .suggestionItemActive {
+  @apply bg-blue-900 text-blue-100;
+}
+
+.suggestionContent {
+  @apply flex items-center gap-2;
+}
+
+.suggestionIcon {
+  @apply text-base;
+}
+
+.suggestionText {
+  @apply font-medium;
+}
+
+.suggestionType {
+  @apply text-xs text-gray-500 capitalize;
+}
+
+.dark .suggestionType {
+  @apply text-gray-400;
+}
+
+.suggestionCount {
+  @apply text-xs text-gray-500 font-mono;
+}
+
+.dark .suggestionCount {
+  @apply text-gray-400;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .searchInput {
+    @apply text-base; /* Prevent zoom on iOS */
+  }
+
+  .suggestionsDropdown {
+    @apply max-h-48;
+  }
+
+  .suggestionItem {
+    @apply px-4 py-3;
+  }
+}
+
+/* Focus states for better accessibility */
+.searchInput:focus-visible {
+  @apply ring-2 ring-blue-500 ring-offset-2;
+}
+
+.suggestionItem:focus-visible {
+  @apply ring-2 ring-blue-500 ring-inset;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .searchInput {
+    @apply border-2;
+  }
+
+  .suggestionItem {
+    @apply border-b border-gray-300;
+  }
+
+  .dark .suggestionItem {
+    @apply border-gray-600;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .loadingIcon {
+    @apply animate-none;
+  }
+
+  .searchInput,
+  .suggestionItem,
+  .clearButton {
+    @apply transition-none;
+  }
+}
+
+/* Loading state */
+.searchLoading .searchIcon {
+  @apply opacity-0;
+}
+
+.searchLoading .loadingIcon {
+  @apply opacity-100;
+}
+
+/* Empty state in dropdown */
+.noSuggestions {
+  @apply px-3 py-2 text-sm text-gray-500 text-center;
+}
+
+.dark .noSuggestions {
+  @apply text-gray-400;
+}
+
+/* Keyboard navigation indicators */
+.suggestionItem[aria-selected="true"] {
+  @apply ring-2 ring-inset ring-blue-500;
+}
+
+/* Screen reader only content */
+.srOnly {
+  @apply sr-only;
+}
+
+/* Animation for dropdown */
+.suggestionsDropdown {
+  animation: dropdownSlide 0.15s ease-out;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .suggestionsDropdown {
+    animation: none;
+  }
+}
+
+/* Custom scrollbar for suggestions */
+.suggestionsDropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.suggestionsDropdown::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-700;
+}
+
+.suggestionsDropdown::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+}
+
+.suggestionsDropdown::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-500;
+}
+
+/* Print styles */
+@media print {
+  .suggestionsDropdown {
+    @apply hidden;
+  }
+
+  .clearButton {
+    @apply hidden;
+  }
+}

@@ -1,0 +1,650 @@
+--------------------------------------------------------------------------------
+BUILDING ON: 02-current-state.txt
+This document: Atomic breakdown of complex solutions requiring detailed implementation steps
+Previous established: 34 problems with solutions, cross-referenced solution relationships
+--------------------------------------------------------------------------------
+
+AI MODELS DASHBOARD - ATOMIC SOLUTIONS BREAKDOWN
+--------------------------------------------------------------------------------
+Version: 1.0
+Date: 2025-09-21
+Purpose: Atomic breakdown of solutions requiring detailed implementation steps
+
+SOLUTION SUMMARY: 33 unique solutions addressing 34 problems through 290 atomic tasks
+
+================================================================================
+PROBLEM CATEGORIES ADDRESSED
+================================================================================
+
+I. SECURITY ISSUES (Problems 1-3)
+II. COMPONENT ARCHITECTURE ISSUES (Problems 4-10)
+III. STATE MANAGEMENT ISSUES (Problems 11-16)
+IV. PERFORMANCE ISSUES (Problems 17-22)
+V. TESTING INFRASTRUCTURE ISSUES (Problems 23-27)
+VI. DEVELOPMENT PROCESS ISSUES (Problems 28-34)
+
+================================================================================
+I. SECURITY ISSUES
+================================================================================
+
+--------------------------------------------------------------------------------
+SOLUTION 1.1: Create environment validator class with strict validation (also 2.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+1.1.1 Create EnvironmentValidator class with singleton pattern in v2/30-configuration/01-environment.ts
+1.1.2 Define EnvironmentConfig interface with supabaseUrl, supabaseAnonKey, nodeEnv properties
+1.1.3 Implement getEnvVar(key: string, defaultValue?: string) method handling both Vite and Node environments
+1.1.4 Create isValidUrl(url: string) method using URL constructor with try-catch validation
+1.1.5 Create isValidJWT(token: string) method checking 3-part structure separated by dots
+1.1.6 Implement validateAndLoadConfig() method that validates all required variables and throws descriptive errors
+1.1.7 Add getInstance() static method ensuring single instance creation
+1.1.8 Create getSupabaseUrl(), getSupabaseAnonKey(), isProduction() getter methods
+1.1.9 Write comprehensive unit tests covering valid/invalid scenarios and error cases
+
+--------------------------------------------------------------------------------
+SOLUTION 1.2: Remove all hardcoded fallback values from client configuration
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+1.2.1 Run grep -r "https://" src/ to find hardcoded URLs, then scan src/lib/client.ts and src/config/ for hardcoded values
+1.2.2 In src/lib/client.ts, replace hardcoded Supabase URL string with import.meta.env.VITE_SUPABASE_URL
+1.2.3 In src/lib/client.ts, replace hardcoded Supabase anon key string with import.meta.env.VITE_SUPABASE_ANON_KEY
+1.2.4 Remove all ||, ??, and default values in createClient() and config objects that provide fallbacks
+1.2.5 Add if (!import.meta.env.VITE_SUPABASE_URL) throw new Error() checks in client.ts before createClient()
+1.2.6 Add "strict": true and "noUncheckedIndexedAccess": true to tsconfig.json compilerOptions
+1.2.7 Create test/.env.test.empty file and run npm run build with empty env to verify build fails appropriately
+
+--------------------------------------------------------------------------------
+SOLUTION 1.3: Add build-time environment variable validation (also 3.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+1.3.1 Add Vite plugin for environment variable validation in vite.config.ts
+1.3.2 Create build-time validation script checking required environment variables
+1.3.3 Configure build process to fail when required variables are missing
+1.3.4 Add environment variable validation to package.json build scripts
+1.3.5 Create environment validation error messages with helpful guidance
+1.3.6 Add validation for environment variable formats (URL, JWT patterns)
+1.3.7 Test build process with missing/invalid environment variables
+
+--------------------------------------------------------------------------------
+SOLUTION 1.4: Implement automated security scanning in CI/CD pipeline
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+1.4.1 Create .github/workflows/security-scan.yml workflow file with appropriate triggers
+1.4.2 Add npm audit step to check for vulnerable dependencies in package.json
+1.4.3 Install and configure git-secrets for scanning hardcoded credentials in repository
+1.4.4 Add CodeQL security analysis step for static code security scanning
+1.4.5 Configure Snyk or similar tool for continuous security monitoring
+1.4.6 Set up security scan failure conditions that block merge/deployment
+1.4.7 Create security scan reporting and notification to team
+1.4.8 Add security badge to README showing security scan status
+
+--------------------------------------------------------------------------------
+SOLUTION 1.5: Add runtime validation that fails fast on missing variables
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+1.5.1 Create runtime environment validator that runs on application startup
+1.5.2 Add immediate application termination on critical environment validation failures
+1.5.3 Implement detailed error logging with specific missing variable names
+1.5.4 Create user-friendly error messages for development vs production environments
+1.5.5 Add validation status display in application header during development
+1.5.6 Set up error boundary specifically for environment validation failures
+1.5.7 Create retry mechanism for transient validation issues
+1.5.8 Add telemetry for environment validation failures in production
+
+--------------------------------------------------------------------------------
+SOLUTION 2.1: Create environment validator class with strict validation (also 1.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 1.1
+
+--------------------------------------------------------------------------------
+SOLUTION 2.2: Add comprehensive environment variable type checking
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+2.2.1 Create TypeScript interfaces for all environment variable types
+2.2.2 Add runtime type validation using Zod or similar schema validation library
+2.2.3 Implement string format validation (URL, email, JWT token patterns)
+2.2.4 Add numeric range validation for port numbers and timeout values
+2.2.5 Create boolean environment variable parsing with strict true/false validation
+2.2.6 Add enum validation for environment-specific values (dev/staging/prod)
+2.2.7 Implement array/list environment variable parsing and validation
+2.2.8 Create comprehensive error messages for type validation failures
+
+--------------------------------------------------------------------------------
+SOLUTION 2.3: Implement silent failure detection and alerting
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+2.3.1 Create monitoring system for environment validation failures
+2.3.2 Add health check endpoint that validates all environment variables
+2.3.3 Implement alerting system for silent environment validation failures
+2.3.4 Set up logging aggregation to detect patterns of validation issues
+2.3.5 Create dashboard for monitoring environment validation status
+2.3.6 Add automated testing that validates environment configuration
+2.3.7 Implement notification system for critical environment misconfigurations
+2.3.8 Create runbook for responding to environment validation alerts
+
+--------------------------------------------------------------------------------
+SOLUTION 2.4: Add environment variable format validation (URL, JWT, etc.)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+2.4.1 Create src/lib/validators/url.ts with isValidUrl() function using URL constructor try/catch for Supabase URLs
+2.4.2 Add src/lib/validators/jwt.ts with isValidJWT() function using regex /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
+2.4.3 Create src/lib/validators/email.ts with isValidEmail() using regex /^[^\s@]+@[^\s@]+\.[^\s@]+$/ for notifications
+2.4.4 Add src/lib/validators/port.ts with isValidPort() function checking parseInt(value) >= 1 && <= 65535
+2.4.5 Create src/lib/validators/boolean.ts with parseBoolean() accepting "true"|"false"|"1"|"0"|"yes"|"no" (case insensitive)
+2.4.6 Add src/lib/validators/uuid.ts with isValidUUID() using regex /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+2.4.7 Create src/lib/validators/custom.ts with project-specific validators (API key patterns, database name formats)
+2.4.8 Add src/lib/validators/__tests__/formatValidators.test.ts with Vitest tests covering valid/invalid cases for each validator
+
+--------------------------------------------------------------------------------
+SOLUTION 2.5: Create development vs production environment validation
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+2.5.1 Create environment-specific validation rules (dev allows localhost, prod requires HTTPS)
+2.5.2 Add development environment detector based on NODE_ENV or custom flags
+2.5.3 Implement stricter validation requirements for production environments
+2.5.4 Create development-only environment variables for debugging and testing
+2.5.5 Add production security checks (HTTPS enforcement, secure headers, etc.)
+2.5.6 Implement environment-specific error handling and logging levels
+2.5.7 Create validation bypass mechanisms for development testing scenarios
+2.5.8 Add automated testing covering both development and production validation paths
+
+--------------------------------------------------------------------------------
+SOLUTION 3.1: Add build-time environment variable validation (also 1.3)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 1.3
+
+--------------------------------------------------------------------------------
+SOLUTION 3.2: Implement pre-commit hooks for security scanning
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+3.2.1 Run npm install --save-dev pre-commit and create .pre-commit-config.yaml in project root
+3.2.2 Add detect-secrets hook to .pre-commit-config.yaml with args: ['--baseline', '.secrets.baseline']
+3.2.3 Add safety hook (python package) to .pre-commit-config.yaml for dependency vulnerability scanning
+3.2.4 Install eslint-plugin-security and add security/* rules to .eslintrc.js with error level
+3.2.5 Create custom hook script .git/hooks/pre-commit to scan staged files for VITE_* or API_KEY patterns
+3.2.6 Add custom hook in .pre-commit-config.yaml checking for TODO comments containing "security" or "vulnerability"
+3.2.7 Create SECURITY.md file documenting git commit --no-verify usage and when it's acceptable
+3.2.8 Add pre-commit install to package.json postinstall script and document setup in README.md
+
+--------------------------------------------------------------------------------
+SOLUTION 3.3: Create automated credential scanning in CI/CD
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+3.3.1 Install gitleaks or truffleHog for credential scanning in CI/CD pipeline
+3.3.2 Create .gitleaks.toml or equivalent configuration file with custom patterns
+3.3.3 Add pre-commit hook for local credential scanning before commits
+3.3.4 Configure CI/CD step to scan entire repository history for leaked credentials
+3.3.5 Set up whitelist/allowlist for false positives and legitimate patterns
+3.3.6 Create credential leak notification system for security team
+3.3.7 Add credential scanning to pull request checks blocking merge on detection
+
+--------------------------------------------------------------------------------
+SOLUTION 3.4: Add security audit step to build process
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+3.4.1 Run npm install --save-dev audit-ci and add "audit": "audit-ci --moderate" script to package.json
+3.4.2 Add "security:audit": "npm audit && audit-ci --high" script to package.json scripts section
+3.4.3 Configure audit-ci in package.json with "auditLevel": "high" to fail build on high/critical vulnerabilities
+3.4.4 Add "npm run security:audit" step to .github/workflows/ci.yml before build and deploy steps
+3.4.5 Create security-report.json output file and integrate with GitHub Security tab using upload-sarif action
+3.4.6 Set up GitHub Dependabot alerts in .github/dependabot.yml for npm ecosystem with daily checks
+3.4.7 Create docs/SECURITY_AUDIT.md with step-by-step remediation procedures and escalation process
+
+--------------------------------------------------------------------------------
+SOLUTION 3.5: Implement security policy enforcement in deployment
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+3.5.1 Create deployment security checklist with mandatory security gates
+3.5.2 Implement Content Security Policy (CSP) headers configuration
+3.5.3 Add HTTPS enforcement and security headers (HSTS, X-Frame-Options, etc.)
+3.5.4 Configure secure environment variable handling in production
+3.5.5 Set up secrets management system (vault, encrypted env vars, etc.)
+3.5.6 Add deployment validation that verifies security configurations
+3.5.7 Create rollback procedures for security policy violations
+3.5.8 Document security deployment requirements and compliance checks
+
+--------------------------------------------------------------------------------
+SOLUTION 3.6: Create security gate that fails build on vulnerabilities
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+3.6.1 Configure vulnerability threshold levels (low, medium, high, critical)
+3.6.2 Set up automated vulnerability scanning in CI/CD pipeline
+3.6.3 Create build failure logic based on security severity thresholds
+3.6.4 Add manual override mechanism for emergency deployments with justification
+3.6.5 Implement vulnerability exception tracking and approval workflow
+3.6.6 Create security gate reporting dashboard showing scan results
+3.6.7 Add integration with security incident response procedures
+3.6.8 Test security gate functionality with known vulnerable dependencies
+
+================================================================================
+II. COMPONENT ARCHITECTURE ISSUES
+================================================================================
+
+--------------------------------------------------------------------------------
+SOLUTION 4.1: Break ModelsSSoT into 6 focused components (also 8.1, 9.1, 10.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+4.1.1 Create src/features/models/components/ directory structure with index.ts barrel exports
+4.1.2 Extract ModelsLayout component handling responsive wrapper and grid system (target: 60 lines)
+4.1.3 Extract ModelsSearchHeader component with search input, debouncing, and filter toggles (target: 80 lines)
+4.1.4 Extract ModelsDataTable component with desktop table view, virtual scrolling, column sorting (target: 150 lines)
+4.1.5 Extract ModelsCardView component with mobile layout and infinite scroll (target: 120 lines)
+4.1.6 Extract ModelsDetailsModal component with model details popup and edit capabilities (target: 100 lines)
+4.1.7 Extract ModelsExportControls component with CSV/JSON export and batch operations (target: 60 lines)
+4.1.8 Update parent ModelsSSoT component to use composition pattern with extracted components
+4.1.9 Migrate shared state and props between parent and child components ensuring data flow
+4.1.10 Write unit tests for each extracted component covering rendering and user interactions
+4.1.11 Write integration tests ensuring all components work together maintaining original functionality
+4.1.12 Remove original 857-line ModelsSSoT.tsx implementation after verification
+
+--------------------------------------------------------------------------------
+SOLUTION 4.2: Implement component size limits in ESLint (<200 lines) (also 5.2, 6.2)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+4.2.1 Run npm install --save-dev eslint-plugin-max-lines-per-function and add to .eslintrc.js plugins array
+4.2.2 Add "max-lines": ["error", {"max": 200, "skipBlankLines": true, "skipComments": true}] to .eslintrc.js rules
+4.2.3 Create .eslintrc-components.js extending base config with stricter 150-line limit for src/components/ directory
+4.2.4 Add "max-lines-per-function": ["error", {"max": 50, "skipBlankLines": true}] to prevent large functions
+4.2.5 Configure ESLint overrides for test files allowing larger size with {"files": ["**/*.test.ts", "**/*.test.tsx"], "rules": {"max-lines": "off"}}
+4.2.6 Run npx eslint src/ --fix to identify existing violations and create actionable remediation list
+4.2.7 Add pre-commit hook running eslint with --max-warnings 0 to prevent new component size violations
+4.2.8 Document component size guidelines in docs/COMPONENT_STANDARDS.md with examples and enforcement policies
+
+--------------------------------------------------------------------------------
+SOLUTION 4.3: Extract reusable custom hooks (useModelData, useFilters)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+4.3.1 Create src/features/models/hooks/ directory and src/features/models/hooks/index.ts with export statements
+4.3.2 Create src/features/models/hooks/useModelData.ts with interface UseModelDataReturn {models: Model[], loading: boolean, error: string | null, refetch: () => void} and TanStack Query implementation
+4.3.3 Create src/features/models/hooks/useFilters.ts with interface UseFiltersReturn {filters: FilterState, updateFilter: (key: string, value: any) => void, resetFilters: () => void} using useState and useSearchParams
+4.3.4 Create src/features/models/hooks/useModelSelection.ts with interface UseSelectionReturn {selectedModels: string[], selectModel: (id: string) => void, clearSelection: () => void} using useState
+4.3.5 Create src/features/models/hooks/useModelExport.ts with exportToCSV() and exportToJSON() functions returning Promise<Blob> with progress callback
+4.3.6 Create src/features/models/hooks/types.ts with all hook interfaces and add to barrel exports in index.ts
+4.3.7 Create src/features/models/hooks/__tests__/useModelData.test.ts using renderHook, waitFor, and mock TanStack Query client
+4.3.8 Add JSDoc comments to each hook with @example usage and @param/@returns documentation following TSDoc standard
+4.3.9 Replace direct state usage in ModelsSSoT.tsx with import {useModelData, useFilters} from '../hooks' and remove local state
+
+--------------------------------------------------------------------------------
+SOLUTION 4.4: Create feature-based folder structure for models components
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+4.4.1 Run mkdir -p src/features/models/{components,hooks,services,types} to create directory structure
+4.4.2 Create src/features/models/components/index.ts with export statements for ModelsTable, ModelsFilters, etc.
+4.4.3 Create src/features/models/hooks/index.ts with export statements for useModelData, useFilters, etc.
+4.4.4 Create src/features/models/services/index.ts and src/features/models/services/modelService.ts with fetchModels(), searchModels() functions
+4.4.5 Create src/features/models/types/index.ts with Model, FilterState, SortOption interfaces from existing code
+4.4.6 Create src/features/models/index.ts with export * from './components'; export * from './hooks'; export * from './services'; export * from './types';
+4.4.7 Add eslint-plugin-boundaries to package.json and configure .eslintrc.js with boundaries/element rule blocking cross-feature imports
+4.4.8 Run find src/ -name "*.ts" -name "*.tsx" | xargs sed -i 's|../components/|../features/models/components/|g' to update import paths
+
+--------------------------------------------------------------------------------
+SOLUTION 4.5: Add component composition patterns for better maintainability
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+4.5.1 Create src/components/compound/ModelsTable.tsx with ModelsTable.Header, ModelsTable.Body, ModelsTable.Row subcomponents using React.createContext
+4.5.2 Create src/components/render-props/DataProvider.tsx with render prop interface {children: (data: T, loading: boolean) => ReactNode}
+4.5.3 Create src/components/hoc/withErrorBoundary.tsx wrapping components with ErrorBoundary and error logging to Sentry
+4.5.4 Create src/features/models/context/ModelsContext.tsx with ModelsProvider component and useModelsContext hook
+4.5.5 Create src/hooks/composition/useComposedHooks.ts combining useModelData + useFilters + useSelection into single hook
+4.5.6 Create src/components/slots/Modal.tsx with Modal.Header, Modal.Body, Modal.Footer slots using children as render props
+4.5.7 Create docs/COMPOSITION_PATTERNS.md with code examples for compound components, render props, HOCs, and context patterns
+4.5.8 Refactor ModelsSSoT.tsx to use <ModelsTable><ModelsTable.Header/><ModelsTable.Body/></ModelsTable> compound pattern
+
+--------------------------------------------------------------------------------
+SOLUTION 4.6: Implement proper separation of concerns (UI vs logic)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+4.6.1 Move data fetching logic from ModelsSSoT.tsx to src/features/models/hooks/useModelData.ts using TanStack Query
+4.6.2 Create src/features/models/services/modelService.ts with fetchModels(), searchModels(), exportModels() functions returning Promise<T>
+4.6.3 Create src/features/models/viewModels/ModelsViewModel.ts class with transformModelData(), calculateStats(), formatDisplayData() methods
+4.6.4 Split ModelsSSoT.tsx into ModelsContainer.tsx (data logic) and ModelsPresentation.tsx (UI only) with props interface
+4.6.5 Create src/lib/validators/modelValidation.ts with validateModelData(), isValidFilter() functions using Zod schemas
+4.6.6 Create src/lib/formatters/modelFormatters.ts with formatModelName(), formatDate(), formatFileSize() utility functions
+4.6.7 Define src/features/models/interfaces/ModelsInterfaces.ts with ModelServiceInterface, ViewModelInterface, ValidatorInterface
+4.6.8 Create src/features/models/services/__tests__/modelService.test.ts testing API calls without React rendering
+
+--------------------------------------------------------------------------------
+SOLUTION 4.7: Add comprehensive testing for each decomposed component
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+4.7.1 Run npm install --save-dev vitest@^0.28.0 @testing-library/react@^13.0.0 @testing-library/jest-dom and configure vitest.config.ts with jsdom environment
+4.7.2 Create src/components/__tests__/ModelsTable.test.tsx testing props {data, onSort, onSelect} with render(), fireEvent.click()
+4.7.3 Create src/features/models/__tests__/ModelsIntegration.test.tsx testing data flow from useModelData hook to ModelsTable component
+4.7.4 Run npm install --save-dev @axe-core/react and add axe accessibility checks to each component test with toHaveNoViolations()
+4.7.5 Run npm install --save-dev @storybook/test-runner and create .github/workflows/visual-tests.yml using chromatic for screenshot comparison
+4.7.6 Add @testing-library/react renderHook performance tests measuring hook execution time and memory usage with performance.now()
+4.7.7 Create src/components/__tests__/__snapshots__/ directory and add expect(component).toMatchSnapshot() for UI stability
+4.7.8 Configure vitest.config.ts with coverage: {reporter: ['text', 'json-summary'], thresholds: {global: {lines: 85, functions: 85}}}
+
+--------------------------------------------------------------------------------
+SOLUTION 5.1: Break AiModelsVisualization into 5 focused components (also 8.1, 9.1, 10.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+5.1.1 Create src/features/analytics/components/ directory structure with index.ts barrel exports
+5.1.2 Extract ModelsDashboard component as main layout orchestrator (target: 80 lines)
+5.1.3 Extract ModelsHeader component with navigation, breadcrumbs, and page controls (target: 60 lines)
+5.1.4 Extract ModelsFilters component with filter controls panel and search integration (target: 100 lines)
+5.1.5 Extract ModelsTable component with data table and virtualization support (target: 120 lines)
+5.1.6 Extract ModelsStats component with summary statistics and KPI dashboard (target: 80 lines)
+5.1.7 Update parent AiModelsVisualization to use composition pattern with extracted components
+5.1.8 Migrate chart rendering logic and data processing between components maintaining separation
+5.1.9 Write unit tests for each extracted component focusing on analytics functionality
+5.1.10 Write integration tests ensuring proper data flow and chart rendering
+5.1.11 Remove original 711-line AiModelsVisualization.tsx implementation after verification
+
+--------------------------------------------------------------------------------
+SOLUTION 5.2: Implement component size limits in ESLint (<200 lines) (also 4.2, 6.2)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 4.2
+
+--------------------------------------------------------------------------------
+SOLUTION 6.1: Break ModelCountLineGraph into focused components (also 8.1, 9.1, 10.1, 18.6)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+6.1.1 Create src/features/charts/components/ directory structure with index.ts barrel exports
+6.1.2 Extract ChartContainer component handling canvas setup and responsive sizing (target: 60 lines)
+6.1.3 Extract ChartConfig component managing Chart.js configuration and options (target: 80 lines)
+6.1.4 Extract DataProcessor component handling data transformation and chart data preparation (target: 70 lines)
+6.1.5 Extract ChartLegend component with interactive legend and filtering capabilities (target: 50 lines)
+6.1.6 Extract ChartControls component with zoom, pan, and export controls (target: 60 lines)
+6.1.7 Update ModelCountLineGraph to orchestrate extracted components with proper cleanup
+6.1.8 Implement Chart.js instance cleanup in useEffect preventing memory leaks
+6.1.9 Add performance optimization for large datasets with data sampling
+6.1.10 Write unit tests for each component using canvas mocking
+6.1.11 Write integration tests ensuring chart renders correctly with real data
+6.1.12 Remove original 781-line ModelCountLineGraph.tsx implementation after verification
+
+--------------------------------------------------------------------------------
+SOLUTION 6.2: Implement component size limits in ESLint (<200 lines) (also 4.2, 5.2)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 4.2
+
+--------------------------------------------------------------------------------
+SOLUTION 8.1: Break large components into smaller testable units (also 4.1, 5.1, 6.1, 9.1, 10.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 4.1, 5.1, 6.1
+
+--------------------------------------------------------------------------------
+SOLUTION 9.1: Break large components into smaller reviewable units (also 4.1, 5.1, 6.1, 8.1, 10.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 4.1, 5.1, 6.1
+
+--------------------------------------------------------------------------------
+SOLUTION 10.1: Break large components into smaller understandable units (also 4.1, 5.1, 6.1, 8.1, 9.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 4.1, 5.1, 6.1
+
+--------------------------------------------------------------------------------
+SOLUTION 18.6: Break down large chart components (also 6.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 6.1
+
+--------------------------------------------------------------------------------
+SOLUTION 19.6: Implement virtual scrolling for filtered results (also 17.6, 22.5)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 17.6
+
+--------------------------------------------------------------------------------
+SOLUTION 22.5: Add virtual scrolling for large data sets (also 17.6, 19.6)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 17.6
+
+================================================================================
+III. STATE MANAGEMENT ISSUES
+================================================================================
+
+--------------------------------------------------------------------------------
+SOLUTION 11.1: Implement Zustand centralized state management (also 12.1, 13.1, 14.1, 15.1, 16.1, 17.4)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+11.1.1 Install zustand and @types/zustand dependencies via npm
+11.1.2 Create src/stores/useModelStore.ts with ModelState interface defining models, filters, selection, loading, error
+11.1.3 Implement store actions: setModels, updateFilters, selectModel, clearSelection, setLoading, setError
+11.1.4 Add Zustand persist middleware for localStorage state persistence of user preferences
+11.1.5 Create Zustand devtools middleware integration for Redux DevTools debugging
+11.1.6 Implement store slices for different concerns: models, filters, ui, analytics
+11.1.7 Create typed selectors and hooks for accessing specific store slices
+11.1.8 Add optimistic updates for user interactions with rollback capability
+11.1.9 Write unit tests for store actions, selectors, and persistence
+11.1.10 Update components to use Zustand store replacing prop drilling
+11.1.11 Test state synchronization across multiple components
+11.1.12 Add store performance monitoring and subscription optimization
+
+--------------------------------------------------------------------------------
+SOLUTION 12.1: Create unified filter state management with Zustand (also 11.1, 14.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 11.1
+
+--------------------------------------------------------------------------------
+SOLUTION 13.1: Implement Zustand persistence middleware for state management (also 11.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 11.1
+
+--------------------------------------------------------------------------------
+SOLUTION 14.1: Create unified filter state management with Zustand (also 11.1, 12.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 11.1
+
+--------------------------------------------------------------------------------
+SOLUTION 15.1: Create centralized provider state management with Zustand (also 11.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 11.1
+
+--------------------------------------------------------------------------------
+SOLUTION 16.1: Implement centralized state management with Zustand (also 11.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 11.1
+
+--------------------------------------------------------------------------------
+SOLUTION 17.4: Create selective state subscriptions with Zustand (also 11.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 11.1
+
+================================================================================
+IV. PERFORMANCE ISSUES
+================================================================================
+
+--------------------------------------------------------------------------------
+SOLUTION 17.1: Implement React.memo for expensive components (also 21.2)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+17.1.1 Identify expensive components through React DevTools Profiler analysis
+17.1.2 Wrap ModelsDataTable component with React.memo and custom comparison function
+17.1.3 Wrap ModelsCardView component with React.memo optimizing for props changes
+17.1.4 Wrap chart components (ModelCountLineGraph, etc.) with React.memo preventing unnecessary renders
+17.1.5 Create custom areEqual functions for complex props comparison in memo components
+17.1.6 Add React.memo to filter components preventing re-renders on unrelated state changes
+17.1.7 Implement memo for modal and popup components optimizing for visibility state
+17.1.8 Write performance tests comparing render counts before and after memoization
+17.1.9 Add React DevTools Profiler integration for ongoing performance monitoring
+
+--------------------------------------------------------------------------------
+SOLUTION 17.2: Add useMemo for expensive calculations and data transformations (also 21.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+17.2.1 Identify expensive calculations through React DevTools Profiler
+17.2.2 Add useMemo to filter operations preventing recalculation on unrelated renders
+17.2.3 Memoize data transformations for chart rendering and table processing
+17.2.4 Implement useMemo for complex sort and search operations
+17.2.5 Add useMemo to API response data processing and normalization
+17.2.6 Create custom comparison functions for complex dependency arrays
+17.2.7 Add performance monitoring for memoized calculations
+
+--------------------------------------------------------------------------------
+SOLUTION 21.1: Implement useMemo for expensive calculations (also 17.2)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 17.2
+
+--------------------------------------------------------------------------------
+SOLUTION 21.2: Add React.memo for expensive components (also 17.1)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS: ref. 17.1
+
+--------------------------------------------------------------------------------
+SOLUTION 17.6: Implement virtual scrolling for large data sets (also 19.6, 22.5)
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+17.6.1 Install react-window and @types/react-window dependencies
+17.6.2 Install react-window-infinite-loader for infinite scrolling capability
+17.6.3 Create VirtualTable component wrapping FixedSizeList for uniform row heights
+17.6.4 Create VirtualList component wrapping VariableSizeList for dynamic row heights
+17.6.5 Implement InfiniteLoader integration for progressive data loading
+17.6.6 Add virtualization to ModelsDataTable component for desktop table view
+17.6.7 Add virtualization to ModelsCardView component for mobile card layout
+17.6.8 Implement virtual scrolling performance optimization for 10,000+ items
+17.6.9 Add scroll position persistence across component re-renders
+17.6.10 Write performance tests ensuring smooth scrolling with large datasets
+17.6.11 Add accessibility support for virtual scrolling with screen readers
+
+--------------------------------------------------------------------------------
+SOLUTION 20.1: Implement code splitting and lazy loading for route components
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+20.1.1 Install @loadable/component or use React.lazy for dynamic imports
+20.1.2 Identify route components suitable for code splitting (Dashboard, Analytics, Settings)
+20.1.3 Convert static imports to dynamic imports using React.lazy() for main route components
+20.1.4 Create loading fallback components with skeleton screens for better UX
+20.1.5 Implement error boundaries for lazy-loaded components with retry functionality
+20.1.6 Configure Vite/webpack bundle splitting in vite.config.ts for optimal chunk sizes
+20.1.7 Add preloading hints for critical routes using link rel="preload"
+20.1.8 Implement intelligent prefetching based on user interaction patterns
+20.1.9 Test code splitting with webpack-bundle-analyzer verifying separate chunks
+20.1.10 Measure and optimize loading performance with Lighthouse and Core Web Vitals
+
+================================================================================
+V. TESTING INFRASTRUCTURE ISSUES
+================================================================================
+
+--------------------------------------------------------------------------------
+SOLUTION 23.1: Install and configure Vitest testing framework
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+23.1.1 Install Vitest dependencies: npm install -D vitest@^0.28.0 @vitest/ui jsdom
+23.1.2 Install Testing Library dependencies: npm install -D @testing-library/react@^13.0.0 @testing-library/jest-dom @testing-library/user-event
+23.1.3 Create vitest.config.ts with jsdom environment, setupFiles, and globals configuration
+23.1.4 Create src/test/setup.ts with Testing Library cleanup and global test setup
+23.1.5 Configure coverage settings with 85% thresholds for branches, functions, lines, statements
+23.1.6 Add test scripts to package.json: "test", "test:watch", "test:coverage", "test:ui"
+23.1.7 Create src/test/utils.tsx with custom render function and common test utilities
+23.1.8 Add .gitignore entries for coverage/ directory and test artifacts
+23.1.9 Create sample test file verifying Vitest and Testing Library integration
+23.1.10 Configure IDE integration for Vitest test runner and debugging
+
+--------------------------------------------------------------------------------
+SOLUTION 26.1: Install and configure MSW (Mock Service Worker) for API mocking
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+26.1.1 Install MSW dependencies: npm install -D msw@^1.0.0 @mswjs/data
+26.1.2 Run npx msw init public/ to set up service worker in public directory
+26.1.3 Create src/test/mocks/handlers.ts with API endpoint mock handlers
+26.1.4 Create src/test/mocks/server.ts configuring MSW server for Node.js testing environment
+26.1.5 Create src/test/mocks/browser.ts configuring MSW worker for browser development
+26.1.6 Add MSW server setup in src/test/setup.ts for automated test runs
+26.1.7 Create mock data factories using @mswjs/data for consistent test data generation
+26.1.8 Configure environment-specific MSW setup (development vs testing vs production)
+26.1.9 Add API integration tests using MSW for realistic request/response testing
+26.1.10 Create documentation for adding new API mocks and mock data patterns
+
+================================================================================
+VI. DEVELOPMENT PROCESS ISSUES
+================================================================================
+
+--------------------------------------------------------------------------------
+SOLUTION 28.1: Configure ESLint with comprehensive rules and complexity limits
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+28.1.1 Install ESLint plugins: @typescript-eslint/eslint-plugin, eslint-plugin-react-hooks, eslint-plugin-jsx-a11y
+28.1.2 Configure .eslintrc.js with TypeScript parser and recommended rule sets
+28.1.3 Add complexity rules: max-complexity (10), max-depth (4), max-lines-per-function (50)
+28.1.4 Configure React-specific rules: jsx-max-depth, react-hooks/rules-of-hooks, react-hooks/exhaustive-deps
+28.1.5 Add accessibility rules from jsx-a11y plugin ensuring WCAG compliance
+28.1.6 Configure file-specific rule overrides for test files, configuration files, and components
+28.1.7 Add ESLint scripts to package.json: "lint", "lint:fix", "lint:check"
+28.1.8 Configure pre-commit hooks running ESLint before commits
+28.1.9 Add ESLint CI/CD pipeline step failing builds on rule violations
+28.1.10 Create ESLint configuration documentation for team guidelines
+
+--------------------------------------------------------------------------------
+SOLUTION 30.1: Add ESLint max-lines rule for component size limits
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+30.1.1 Add max-lines rule to .eslintrc.js with 200-line limit for component files
+30.1.2 Configure max-lines-per-function rule with 50-line limit for individual functions
+30.1.3 Add file pattern-specific overrides: components (200), hooks (100), utils (150)
+30.1.4 Create ESLint rule exceptions for generated files and legacy code with TODO comments
+30.1.5 Configure max-statements rule limiting statements per function to 20
+30.1.6 Add max-params rule limiting function parameters to 5 encouraging object destructuring
+30.1.7 Test ESLint rules on existing codebase identifying violations requiring refactoring
+30.1.8 Document ESLint size limits in development guidelines with examples and rationale
+
+--------------------------------------------------------------------------------
+SOLUTION 33.1: Implement performance monitoring with Web Vitals and analytics
+--------------------------------------------------------------------------------
+
+ATOMIC TASKS:
+33.1.1 Install web-vitals library: npm install web-vitals@^3.0.0
+33.1.2 Create src/utils/performance.ts for Web Vitals collection and reporting
+33.1.3 Implement Largest Contentful Paint (LCP) monitoring with threshold alerts
+33.1.4 Add First Input Delay (FID) tracking for user interaction responsiveness
+33.1.5 Configure Cumulative Layout Shift (CLS) monitoring for visual stability
+33.1.6 Set up performance data collection sending metrics to analytics service
+33.1.7 Create performance dashboard displaying real-time Web Vitals metrics
+33.1.8 Implement performance budgets with automated alerts for threshold violations
+33.1.9 Add user session recording integration for performance issue diagnosis
+33.1.10 Create performance monitoring documentation and alert response procedures
+
+--------------------------------------------------------------------------------
+NEXT STEPS → Implementation Planning
+Purpose: Use atomic tasks for detailed project planning and sprint organization
+Focus: Transform atomic tasks into actionable development tickets
+--------------------------------------------------------------------------------

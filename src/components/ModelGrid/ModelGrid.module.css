@@ -1,0 +1,186 @@
+/* ModelGrid Component Styles */
+
+.grid {
+  @apply gap-4;
+}
+
+/* Grid View Layout */
+.gridView {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+}
+
+/* List View Layout */
+.listView {
+  @apply flex flex-col;
+}
+
+/* Compact View Layout */
+.compactView {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6;
+}
+
+/* Empty State */
+.emptyState {
+  @apply col-span-full flex flex-col items-center justify-center py-16 text-center;
+}
+
+.emptyStateIcon {
+  @apply w-24 h-24 mx-auto mb-4 opacity-20 text-gray-400 dark:text-gray-600;
+}
+
+.emptyStateTitle {
+  @apply text-lg font-medium text-gray-900 dark:text-gray-100 mb-2;
+}
+
+.emptyStateMessage {
+  @apply text-gray-500 dark:text-gray-400 max-w-md;
+}
+
+.emptyStateActions {
+  @apply mt-6;
+}
+
+/* Loading States */
+.loadingGrid {
+  @apply animate-pulse;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .gridView {
+    @apply grid-cols-1 gap-3;
+  }
+
+  .compactView {
+    @apply grid-cols-2 gap-2;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .gridView {
+    @apply grid-cols-2 gap-3;
+  }
+
+  .compactView {
+    @apply grid-cols-2 gap-3;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .gridView {
+    @apply grid-cols-2 gap-4;
+  }
+
+  .compactView {
+    @apply grid-cols-3 gap-3;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .gridView {
+    @apply grid-cols-3 gap-4;
+  }
+
+  .compactView {
+    @apply grid-cols-4 gap-3;
+  }
+}
+
+@media (min-width: 1281px) and (max-width: 1536px) {
+  .gridView {
+    @apply grid-cols-4 gap-4;
+  }
+
+  .compactView {
+    @apply grid-cols-4 gap-3;
+  }
+}
+
+@media (min-width: 1537px) {
+  .gridView {
+    @apply grid-cols-4 gap-6;
+  }
+
+  .compactView {
+    @apply grid-cols-6 gap-4;
+  }
+}
+
+/* Auto-fit layouts for dynamic content */
+.autoFitGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.autoFitCompact {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+/* Masonry-style layout for varying heights */
+.masonryGrid {
+  column-count: 1;
+  column-gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .masonryGrid {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .masonryGrid {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 1280px) {
+  .masonryGrid {
+    column-count: 4;
+  }
+}
+
+.masonryItem {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+}
+
+/* Accessibility and Focus Management */
+.grid:focus-within {
+  @apply outline-none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .emptyStateIcon {
+    @apply opacity-40;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .loadingGrid {
+    @apply animate-none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .grid {
+    @apply grid-cols-2 gap-2 text-sm;
+  }
+
+  .emptyState {
+    @apply py-8;
+  }
+}
+
+/* Dark mode specific adjustments */
+@media (prefers-color-scheme: dark) {
+  .emptyStateIcon {
+    @apply text-gray-600;
+  }
+}

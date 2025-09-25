@@ -1,0 +1,30 @@
+{
+  "allowlist": [
+    "note: any vulnerability ID can be allowlisted if needed"
+  ],
+  "levels": {
+    "low": false,
+    "moderate": true,
+    "high": true,
+    "critical": true
+  },
+  "report-type": "full",
+  "output-format": "text",
+  "pass-enoaudit": true,
+  "show-found": true,
+  "show-not-found": false,
+  "registry": "https://registry.npmjs.org/",
+  "retry": {
+    "count": 3,
+    "factor": 2,
+    "minTimeout": 1000,
+    "maxTimeout": 30000,
+    "randomize": true
+  },
+  "advisories": [
+    {
+      "comment": "These advisories will be ignored if present",
+      "note": "Add specific GHSA IDs or CVE numbers here if needed"
+    }
+  ]
+}

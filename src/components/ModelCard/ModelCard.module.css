@@ -1,0 +1,258 @@
+/* ModelCard Component Styles */
+
+.card {
+  @apply rounded-lg border transition-all duration-200 hover:shadow-lg cursor-pointer;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.card:active {
+  transform: translateY(0);
+}
+
+/* View Mode Specific Styles */
+.gridView {
+  @apply h-full min-h-[280px] flex flex-col;
+}
+
+.listView {
+  @apply h-auto;
+}
+
+.compactView {
+  @apply h-auto;
+}
+
+/* Content Areas */
+.content {
+  @apply p-4 flex-1 flex flex-col;
+}
+
+.header {
+  @apply flex items-start justify-between mb-3;
+}
+
+.body {
+  @apply flex-1;
+}
+
+.footer {
+  @apply mt-auto pt-3;
+}
+
+/* Typography */
+.title {
+  @apply font-semibold text-lg leading-tight line-clamp-2;
+}
+
+.description {
+  @apply text-sm mb-3 line-clamp-3 leading-relaxed;
+}
+
+/* Provider Badge */
+.providerBadge {
+  @apply text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap;
+}
+
+/* Metadata */
+.metadata {
+  @apply space-y-2 mb-4;
+}
+
+.metadataItem {
+  @apply flex justify-between items-center text-sm;
+}
+
+.metadataLabel {
+  @apply font-medium flex-shrink-0;
+}
+
+.metadataValue {
+  @apply text-right;
+}
+
+/* Capabilities */
+.capabilities {
+  @apply flex gap-1 items-center;
+}
+
+.capabilityDot {
+  @apply w-2 h-2 rounded-full;
+}
+
+.capabilityDot[data-capability="function-calling"] {
+  @apply bg-green-500;
+}
+
+.capabilityDot[data-capability="vision"] {
+  @apply bg-blue-500;
+}
+
+.capabilityDot[data-capability="streaming"] {
+  @apply bg-purple-500;
+}
+
+/* Pricing */
+.pricingBadge {
+  @apply px-2 py-1 rounded text-xs font-medium;
+}
+
+.pricingFree {
+  @apply bg-green-100 text-green-800;
+}
+
+.pricingPaid {
+  @apply bg-orange-100 text-orange-800;
+}
+
+/* Dark mode pricing */
+.dark .pricingFree {
+  @apply bg-green-900 text-green-200;
+}
+
+.dark .pricingPaid {
+  @apply bg-orange-900 text-orange-200;
+}
+
+/* Actions */
+.actions {
+  @apply flex items-center justify-between mt-4 pt-3 border-t;
+}
+
+.actionButton {
+  @apply px-3 py-1.5 text-xs font-medium rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.primaryButton {
+  @apply bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800;
+}
+
+.secondaryButton {
+  @apply border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100;
+}
+
+.dark .secondaryButton {
+  @apply border-gray-600 text-gray-300 hover:bg-gray-700 active:bg-gray-600;
+}
+
+/* Loading State */
+.loading {
+  @apply animate-pulse;
+}
+
+.loadingBar {
+  @apply bg-gray-300 rounded;
+}
+
+.dark .loadingBar {
+  @apply bg-gray-600;
+}
+
+.loadingBarSecondary {
+  @apply bg-gray-200 rounded;
+}
+
+.dark .loadingBarSecondary {
+  @apply bg-gray-700;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .gridView .content {
+    @apply p-3;
+  }
+
+  .title {
+    @apply text-base;
+  }
+
+  .description {
+    @apply line-clamp-2;
+  }
+
+  .actions {
+    @apply flex-col gap-2 items-stretch;
+  }
+
+  .actionButton {
+    @apply text-center;
+  }
+}
+
+/* Focus and Accessibility */
+.card:focus {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
+.card:focus-within {
+  @apply ring-2 ring-blue-500 ring-offset-2;
+}
+
+/* Animation for hover effects */
+@keyframes cardHover {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-2px) scale(1.01);
+  }
+}
+
+.card:hover {
+  animation: cardHover 0.2s ease-out forwards;
+}
+
+/* Compact view specific styles */
+.compactView .content {
+  @apply p-3 flex-row items-center;
+}
+
+.compactView .title {
+  @apply text-sm font-medium truncate;
+}
+
+.compactView .description {
+  @apply text-xs line-clamp-1 mb-0;
+}
+
+/* List view specific styles */
+.listView .content {
+  @apply p-4 flex-row items-center gap-4;
+}
+
+.listView .metadata {
+  @apply flex flex-row gap-4 mb-0 text-xs;
+}
+
+.listView .metadataItem {
+  @apply flex-col items-start gap-0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .card {
+    @apply border-2;
+  }
+
+  .actionButton {
+    @apply border-2;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    @apply transition-none;
+  }
+
+  .card:hover {
+    @apply transform-none;
+    animation: none;
+  }
+
+  .loading {
+    @apply animate-none;
+  }
+}

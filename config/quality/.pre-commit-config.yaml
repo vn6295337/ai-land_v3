@@ -1,0 +1,181 @@
+# Pre-commit hooks configuration for AI Models Discovery Dashboard
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+repos:
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-json
+      - id: pretty-format-json
+        args: [--autofix, --indent=2]
+      - id: check-toml
+      - id: check-xml
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+
+  # Python hooks for validation scripts
+  - repo: https://github.com/psf/black
+    rev: 24.2.0
+    hooks:
+      - id: black
+        language_version: python3
+        files: ^v2/50-scripts/.*\.py$
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        files: ^v2/50-scripts/.*\.py$
+        args: [--max-line-length=88, --extend-ignore=E203,W503]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        files: ^v2/50-scripts/.*\.py$
+        args: [--profile=black]
+
+  # TypeScript/JavaScript hooks
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.0.0-beta.2
+    hooks:
+      - id: eslint
+        files: \.(js|jsx|ts|tsx)$
+        args: [--fix, --ext, .js,.jsx,.ts,.tsx]
+        additional_dependencies:
+          - eslint@8.57.0
+          - "@typescript-eslint/eslint-plugin@6.21.0"
+          - "@typescript-eslint/parser@6.21.0"
+          - "eslint-plugin-react@7.34.0"
+          - "eslint-plugin-react-hooks@4.6.0"
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        files: \.(js|jsx|ts|tsx|json|md|yml|yaml|css|scss|html)$
+        args: [--write]
+
+  # Security scanning
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: package-lock.json
+
+  - repo: https://github.com/gitguardian/ggshield
+    rev: v1.27.0
+    hooks:
+      - id: ggshield
+        language: python
+        stages: [commit]
+
+  # Project-specific validation hooks
+  - repo: local
+    hooks:
+      - id: validate-naming-conventions
+        name: Validate naming conventions
+        entry: python3 v2/50-scripts/01-validate-naming.py
+        language: system
+        pass_filenames: false
+        files: ^v2/.*
+        stages: [commit]
+
+      - id: validate-file-extensions
+        name: Validate file extensions
+        entry: python3 v2/50-scripts/02-validate-extensions.py
+        language: system
+        pass_filenames: false
+        files: ^v2/.*
+        stages: [commit]
+
+      - id: validate-environment-config
+        name: Validate environment configuration
+        entry: bash -c 'cd v2 && npm test 30-configuration/01-environment.test.ts --run'
+        language: system
+        pass_filenames: false
+        files: ^v2/30-configuration/.*\.(ts|js)$
+        stages: [commit]
+
+      - id: validate-security-patterns
+        name: Check for security anti-patterns
+        entry: python3 v2/50-scripts/03-security-check.py
+        language: system
+        pass_filenames: true
+        files: \.(js|jsx|ts|tsx|py)$
+        stages: [commit]
+
+      - id: check-todo-format
+        name: Check TODO format in code
+        entry: python3 v2/50-scripts/04-check-todos.py
+        language: system
+        pass_filenames: true
+        files: \.(js|jsx|ts|tsx|py|md|txt)$
+        stages: [commit]
+
+      # TypeScript type checking
+      - id: typescript-check
+        name: TypeScript type checking
+        entry: bash -c 'npm run type-check || exit 1'
+        language: system
+        pass_filenames: false
+        files: \.(ts|tsx)$
+        stages: [commit]
+
+      # Build verification
+      - id: build-check
+        name: Verify build succeeds
+        entry: bash -c 'npm run build:dev || exit 1'
+        language: system
+        pass_filenames: false
+        files: \.(js|jsx|ts|tsx|json|css)$
+        stages: [push]
+
+      # Test verification
+      - id: test-check
+        name: Run critical tests
+        entry: bash -c 'npm test -- --run --reporter=verbose --passWithNoTests'
+        language: system
+        pass_filenames: false
+        files: \.(js|jsx|ts|tsx)$
+        stages: [push]
+
+# Configuration
+default_language_version:
+  python: python3
+  node: 18.19.0
+
+# Global excludes
+exclude: |
+  (?x)^(
+    node_modules/.*|
+    dist/.*|
+    build/.*|
+    coverage/.*|
+    \.next/.*|
+    \.nuxt/.*|
+    \.cache/.*|
+    \.git/.*|
+    \.vscode/.*|
+    \.idea/.*|
+    __pycache__/.*|
+    \.pytest_cache/.*|
+    \.mypy_cache/.*|
+    package-lock\.json|
+    yarn\.lock|
+    pnpm-lock\.yaml
+  )$

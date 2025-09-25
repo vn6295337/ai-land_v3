@@ -1,0 +1,138 @@
+# Naming Convention Configuration
+# Controls file and folder naming validation rules
+
+folder_patterns:
+  # Regex pattern for valid folder names
+  required_prefix: '^\d{2}-[a-z][a-z0-9-]*$'
+
+  # Explicitly allowed folder names
+  allowed_folders:
+    - '10-documentation'
+    - '20-architecture'
+    - '30-configuration'
+    - '40-integrations'
+    - '50-scripts'
+    - '60-security'
+    - '70-testing'
+    - '80-deployment'
+    - '90-utilities'
+
+file_patterns:
+  # Regex pattern for valid file names (must start with 2 digits and dash)
+  required_prefix: '^\d{2}-[a-z][a-z0-9-]*\.'
+
+  # Globally allowed file extensions
+  allowed_extensions:
+    - '.txt'
+    - '.md'
+    - '.ts'
+    - '.js'
+    - '.cjs'
+    - '.py'
+    - '.json'
+    - '.yml'
+    - '.yaml'
+    - '.sh'
+    - '.env'
+    - '.dockerfile'
+
+# Folder-specific file type restrictions
+folder_type_rules:
+  '10-documentation':
+    - '.txt'
+    - '.md'
+  '20-architecture':
+    - '.txt'
+    - '.md'
+    - '.json'
+    - '.yml'
+    - '.yaml'
+  '30-configuration':
+    - '.ts'
+    - '.js'
+    - '.json'
+    - '.yml'
+    - '.yaml'
+    - '.env'
+  '40-integrations':
+    - '.ts'
+    - '.js'
+    - '.json'
+    - '.yml'
+    - '.yaml'
+  '50-scripts':
+    - '.py'
+    - '.js'
+    - '.ts'
+    - '.cjs'
+    - '.sh'
+    - '.yml'
+    - '.yaml'
+  '60-security':
+    - '.txt'
+    - '.md'
+    - '.yml'
+    - '.yaml'
+    - '.json'
+  '70-testing':
+    - '.py'
+    - '.js'
+    - '.ts'
+    - '.json'
+    - '.yml'
+    - '.yaml'
+  '80-deployment':
+    - '.yml'
+    - '.yaml'
+    - '.json'
+    - '.sh'
+    - '.dockerfile'
+  '90-utilities':
+    - '.py'
+    - '.js'
+    - '.ts'
+    - '.sh'
+    - '.json'
+    - '.yml'
+    - '.yaml'
+
+# Paths to exclude from validation
+exclusions:
+  - '.git'
+  - '.claude'
+  - 'node_modules'
+  - '.venv'
+  - '__pycache__'
+  - '.pytest_cache'
+  - '.mypy_cache'
+  - 'dist'
+  - 'build'
+  - '.next'
+  - 'coverage'
+
+# Legacy files temporarily exempt from naming rules
+legacy_exemptions:
+  - 'README.md'
+  - 'package.json'
+  - 'tsconfig.json'
+  - 'package-lock.json'
+  - '.gitignore'
+  - 'CLAUDE.md'
+  - '.pre-commit-config.yaml'
+
+# Legacy folders temporarily exempt from naming rules
+legacy_folder_exemptions: []
+
+# Enforcement level: 'error' (block commit), 'warn' (allow with warning), 'off' (disabled)
+enforcement_level: 'error'
+
+# Special rules
+rules:
+  # Allow certain root-level files
+  allow_root_config_files: true
+
+  # Require all folders to follow numbering
+  strict_folder_numbering: true
+
+  # Require all files within numbered folders to follow numbering
+  strict_file_numbering: true

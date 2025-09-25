@@ -32,14 +32,10 @@ export class RealModelService {
     this.config = {
       providers: [
         {
-          name: 'huggingface',
-          apiUrl: 'https://huggingface.co/api/models',
-          transform: this.transformHuggingFaceModels
-        },
-        {
-          name: 'openrouter',
-          apiUrl: 'https://openrouter.ai/api/v1/models',
-          transform: this.transformOpenRouterModels
+          name: 'gemini',
+          apiUrl: 'https://generativelanguage.googleapis.com/v1/models',
+          apiKey: import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY,
+          transform: this.transformGeminiModels
         }
       ],
       cacheExpiry: 5 * 60 * 1000, // 5 minutes
@@ -161,97 +157,46 @@ export class RealModelService {
   }
 
   /**
-   * Transform HuggingFace API response to AIModel format
+   * Transform Gemini API response to AIModel format
    */
-  private transformHuggingFaceModels(data: any[]): AIModel[] {
-    return data
-      .filter(model => model.pipeline_tag && model.downloads > 100)
-      .slice(0, 50) // Limit to top 50
-      .map((model, index) => ({
-        id: `hf-${model.id}`,
-        name: model.id.split('/').pop() || model.id,
-        description: model.description || `${model.pipeline_tag} model`,
-        provider: 'huggingface',
-        modelId: model.id,
-        category: this.mapHuggingFacePipeline(model.pipeline_tag),
-        cost: 0, // Most HuggingFace models are free
-        contextLength: this.estimateContextLength(model.config),
-        streaming: false,
-        functionCalling: false,
-        vision: model.pipeline_tag === 'image-classification' ||
-                model.pipeline_tag === 'image-to-text' ||
-                model.pipeline_tag === 'object-detection',
-        lastUpdated: model.lastModified || new Date().toISOString(),
+  private transformGeminiModels(data: { models: any[] }): AIModel[] {
+    return data.models
+      .filter(model => model.name && !model.name.includes('embedding'))
+      .map((model) => ({
+        id: `gemini-${model.name.replace('models/', '')}`,
+        name: model.displayName || model.name.replace('models/', ''),
+        description: model.description || `${model.displayName} - Google's generative AI model`,
+        provider: 'google',
+        modelId: model.name,
+        category: this.mapGeminiCategory(model.name),
+        cost: 0, // Gemini has free tier
+        contextLength: model.inputTokenLimit || 32768,
+        streaming: true,
+        functionCalling: model.supportedGenerationMethods?.includes('generateContent') || false,
+        vision: model.name.includes('vision') || model.name.includes('pro-vision'),
+        lastUpdated: new Date().toISOString(),
         availability: 'public',
-        license: model.cardData?.license || 'unknown'
+        license: 'proprietary'
       }));
   }
 
   /**
-   * Transform OpenRouter API response to AIModel format
+   * Map Gemini model names to categories
    */
-  private transformOpenRouterModels(data: { data: any[] }): AIModel[] {
-    return data.data.map((model, index) => ({
-      id: `or-${model.id}`,
-      name: model.name || model.id,
-      description: model.description || `Model from ${model.id.split('/')[0]}`,
-      provider: model.id.split('/')[0] || 'openrouter',
-      modelId: model.id,
-      category: this.mapOpenRouterCategory(model.id),
-      cost: model.pricing?.prompt || 0,
-      contextLength: model.context_length || 4096,
-      streaming: true,
-      functionCalling: model.function_calling || false,
-      vision: model.modality?.includes('image') || false,
-      lastUpdated: new Date().toISOString(),
-      availability: 'public',
-      license: 'proprietary'
-    }));
-  }
+  private mapGeminiCategory(modelName: string): string {
+    const name = modelName.toLowerCase();
 
-  /**
-   * Map HuggingFace pipeline tags to our categories
-   */
-  private mapHuggingFacePipeline(pipeline: string): string {
-    const mapping: Record<string, string> = {
-      'text-generation': 'conversational',
-      'text2text-generation': 'conversational',
-      'conversational': 'conversational',
-      'question-answering': 'conversational',
-      'summarization': 'text_processing',
-      'translation': 'text_processing',
-      'text-classification': 'text_processing',
-      'token-classification': 'text_processing',
-      'fill-mask': 'text_processing',
-      'image-classification': 'vision',
-      'image-to-text': 'vision',
-      'object-detection': 'vision',
-      'image-segmentation': 'vision',
-      'text-to-image': 'image_generation',
-      'text-to-speech': 'audio',
-      'automatic-speech-recognition': 'audio',
-      'audio-classification': 'audio'
-    };
-
-    return mapping[pipeline] || 'other';
-  }
-
-  /**
-   * Map OpenRouter model IDs to categories
-   */
-  private mapOpenRouterCategory(modelId: string): string {
-    if (modelId.includes('gpt') || modelId.includes('claude')) {
-      return 'conversational';
+    if (name.includes('vision') || name.includes('pro-vision')) {
+      return 'vision';
     }
-    if (modelId.includes('code') || modelId.includes('copilot')) {
+    if (name.includes('code')) {
       return 'code_generation';
     }
-    if (modelId.includes('dall-e') || modelId.includes('midjourney')) {
-      return 'image_generation';
+    if (name.includes('chat') || name.includes('pro')) {
+      return 'conversational';
     }
-    if (modelId.includes('whisper')) {
-      return 'audio';
-    }
+
+    // Default to conversational for Gemini models
     return 'conversational';
   }
 

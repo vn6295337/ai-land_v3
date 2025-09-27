@@ -44,8 +44,13 @@ jobs:
       run: |
         echo "🔒 Security Gate: Dependency Scanning"
         # This will fail the job if high/critical vulnerabilities are found
-        npm audit --audit-level=high
+        # Allow moderate vulnerabilities for development dependencies
+        if ! npm audit --audit-level=high; then
+          echo "❌ SECURITY FAILURE: High/critical vulnerabilities found"
+          exit 1
+        fi
         echo "✅ SECURITY PASS: No high/critical vulnerabilities found"
+        echo "ℹ️  Note: Moderate vulnerabilities in development dependencies are acceptable"
 
     - name: Security Gate - Secret Detection
       run: |

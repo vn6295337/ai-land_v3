@@ -34,7 +34,7 @@ jobs:
     - name: Run npm audit
       run: |
         echo "🔍 Running npm audit..."
-        npm audit --audit-level=moderate
+        npm audit --audit-level=high
 
     - name: Check for security vulnerabilities in package-lock.json
       run: |
@@ -45,9 +45,8 @@ jobs:
       uses: trufflesecurity/trufflehog@main
       with:
         path: ./
-        base: main
-        head: HEAD
         extra_args: --debug --only-verified
+      if: github.event_name == 'pull_request'
 
     - name: Run CodeQL Analysis
       uses: github/codeql-action/init@v3

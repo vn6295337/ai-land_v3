@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'python' ]
+        language: [ 'javascript' ]
 
     steps:
       - name: Checkout code
@@ -45,12 +45,6 @@ jobs:
           node-version: '18.19.0'
           cache: 'npm'
 
-      - name: Setup Python
-        if: matrix.language == 'python'
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
 
       - name: Install dependencies
         if: matrix.language == 'javascript'
@@ -58,10 +52,6 @@ jobs:
           npm ci
           npm run build:dev
 
-      - name: Install Python dependencies
-        if: matrix.language == 'python'
-        run: |
-          pip install flake8 bandit safety
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
@@ -121,34 +111,6 @@ jobs:
           echo "Skipping Snyk scan - no SNYK_TOKEN configured"
           echo "npm audit covers dependency security scanning"
 
-  python-security:
-    name: Python Security Analysis
-    runs-on: ubuntu-latest
-    if: false  # Skip since this is a TypeScript/React project
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install security tools
-        run: |
-          pip install bandit[toml] safety semgrep
-
-      - name: Run Bandit security scan
-        run: |
-          echo "No Python files found, skipping Bandit scan"
-
-      - name: Run Safety check
-        run: |
-          echo "No Python dependencies found, skipping Safety check"
-
-      - name: Run Semgrep on TypeScript
-        run: |
-          semgrep --config=auto src/ --json --output=semgrep-report.json || true
 
   dockerfile-security:
     name: Dockerfile Security

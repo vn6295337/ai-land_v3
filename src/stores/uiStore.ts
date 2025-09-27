@@ -118,7 +118,7 @@ export type UIStore = UIState & UIActions;
 
 const initialState: UIState = {
   // View preferences
-  viewMode: 'grid',
+  viewMode: 'table',
   theme: 'system',
   sidebarState: 'expanded',
 
@@ -194,7 +194,7 @@ export const useUIStore = create<UIStore>()(
 
         toggleViewMode: () => {
           const state = get();
-          const modes: ViewMode[] = ['grid', 'list', 'compact'];
+          const modes: ViewMode[] = ['table', 'grid', 'list', 'compact'];
           const currentIndex = modes.indexOf(state.viewMode);
           const nextIndex = (currentIndex + 1) % modes.length;
           get().setViewMode(modes[nextIndex]);

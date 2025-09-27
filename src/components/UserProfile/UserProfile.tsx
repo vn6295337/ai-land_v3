@@ -3,6 +3,7 @@ import { User, Settings, Activity, BarChart3, Download, Heart, Search, Eye, Cloc
 import { ComponentProps } from '../../types/ui';
 import { useUserProfileStore, userProfileSelectors } from '../../stores/userProfileStore';
 import { useUIStore } from '../../stores/uiStore';
+import { ThemeToggle } from '../ThemeToggle/ThemeToggle';
 
 export interface UserProfileProps extends ComponentProps {
   view?: 'profile' | 'preferences' | 'activity' | 'privacy';
@@ -309,6 +310,25 @@ export const UserProfile: React.FC<UserProfileProps> = React.memo(({
                 <option value={48}>48</option>
                 <option value={96}>96</option>
               </select>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Theme & Appearance</h4>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="text-sm font-medium text-gray-900 dark:text-gray-100">Theme</label>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Choose your preferred color scheme
+                </p>
+              </div>
+              <ThemeToggle
+                variant="dropdown"
+                size="sm"
+                data-testid={`${testId}-theme-toggle`}
+              />
             </div>
           </div>
         </div>

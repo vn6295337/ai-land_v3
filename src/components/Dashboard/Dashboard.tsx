@@ -2,11 +2,14 @@ import React, { useEffect } from 'react';
 import { ComponentProps } from '../../types/ui';
 import { SearchBar } from '../SearchBar/SearchBar';
 import { ModelGrid } from '../ModelGrid/ModelGrid';
+import { ModelsTable } from '../ModelsTable/ModelsTable';
 import { FilterPanel } from '../FilterPanel/FilterPanel';
+import { AdvancedFilters } from '../AdvancedFilters/AdvancedFilters';
 import { ModelComparison } from '../ModelComparison/ModelComparison';
 import { UserProfile } from '../UserProfile/UserProfile';
 import { ExportDialog } from '../ExportDialog/ExportDialog';
 import { Analytics } from '../Analytics/Analytics';
+import { ThemeToggle } from '../ThemeToggle/ThemeToggle';
 import { useModelsStore, modelsSelectors } from '../../stores/modelsStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useUserProfileStore } from '../../stores/userProfileStore';
@@ -76,48 +79,59 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </p>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2">
         {view === 'models' && (
           <>
-            <button
-              onClick={toggleViewMode}
-              className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              data-testid={`${testId}-view-toggle`}
-            >
-              View: {viewMode}
-            </button>
-
-            {showFilters && (
+            <div className="flex flex-wrap gap-2">
               <button
-                onClick={toggleFilters}
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  uiShowFilters
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
-                }`}
-                data-testid={`${testId}-filters-toggle`}
+                onClick={toggleViewMode}
+                className="flex-1 sm:flex-none px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors min-h-[40px] touch-manipulation"
+                data-testid={`${testId}-view-toggle`}
               >
-                Filters
+                <span className="hidden xs:inline">{viewMode === 'table' ? '🎯 Grid View' : '📊 Table View'}</span>
+                <span className="xs:hidden">{viewMode === 'table' ? '🎯 Grid' : '📊 Table'}</span>
               </button>
-            )}
 
-            <button
-              onClick={openExportDialog}
-              className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              data-testid={`${testId}-export-button`}
-            >
-              Export
-            </button>
+              {showFilters && (
+                <button
+                  onClick={toggleFilters}
+                  className={`flex-1 sm:flex-none px-3 py-2 text-sm font-medium rounded-md transition-colors min-h-[40px] touch-manipulation ${
+                    uiShowFilters
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+                  data-testid={`${testId}-filters-toggle`}
+                >
+                  Filters
+                </button>
+              )}
+
+              <button
+                onClick={openExportDialog}
+                className="flex-1 sm:flex-none px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors min-h-[40px] touch-manipulation"
+                data-testid={`${testId}-export-button`}
+              >
+                Export
+              </button>
+            </div>
           </>
         )}
 
-        <button
-          onClick={openSettings}
-          className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          data-testid={`${testId}-settings-button`}
-        >
-          {isLoggedIn ? 'Profile' : 'Settings'}
-        </button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <ThemeToggle
+            size="md"
+            className="min-h-[40px]"
+            data-testid={`${testId}-theme-toggle`}
+          />
+
+          <button
+            onClick={openSettings}
+            className="flex-1 sm:flex-none px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors min-h-[40px] touch-manipulation"
+            data-testid={`${testId}-settings-button`}
+          >
+            {isLoggedIn ? 'Profile' : 'Settings'}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -213,16 +227,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {renderStats()}
       {renderError()}
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Filter Panel */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-8">
-            <FilterPanel testId={`${testId}-filters`} />
+      {/* Advanced Filters - Always visible for table view */}
+      {viewMode === 'table' && (
+        <AdvancedFilters
+          className="mb-6"
+          testId={`${testId}-advanced-filters`}
+        />
+      )}
+
+      <div className={viewMode === 'table' ? '' : 'grid grid-cols-1 lg:grid-cols-4 gap-8'}>
+        {/* Filter Panel - Only for grid view */}
+        {viewMode !== 'table' && (
+          <div className="lg:col-span-1">
+            <div className="sticky top-8">
+              <FilterPanel testId={`${testId}-filters`} />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Main Content */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className={viewMode === 'table' ? 'space-y-6' : 'lg:col-span-3 space-y-6'}>
           {/* Model Comparison */}
           {comparisonModels.length > 0 && (
             <ModelComparison
@@ -233,16 +257,27 @@ export const Dashboard: React.FC<DashboardProps> = ({
             />
           )}
 
-          {/* Model Grid */}
-          <ModelGrid
-            showPagination={true}
-            emptyStateMessage={
-              searchInfo.hasQuery
-                ? `No models found for "${searchInfo.query}". Try adjusting your search terms.`
-                : 'No models available. This might be a loading issue - try refreshing the page.'
-            }
-            testId={`${testId}-grid`}
-          />
+          {/* Model Display - Table or Grid based on view mode */}
+          {viewMode === 'table' ? (
+            <ModelsTable
+              emptyStateMessage={
+                searchInfo.hasQuery
+                  ? `No models found for "${searchInfo.query}". Try adjusting your search terms.`
+                  : 'No models available. This might be a loading issue - try refreshing the page.'
+              }
+              testId={`${testId}-table`}
+            />
+          ) : (
+            <ModelGrid
+              showPagination={true}
+              emptyStateMessage={
+                searchInfo.hasQuery
+                  ? `No models found for "${searchInfo.query}". Try adjusting your search terms.`
+                  : 'No models available. This might be a loading issue - try refreshing the page.'
+              }
+              testId={`${testId}-grid`}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -264,7 +299,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors ${className}`}
       data-testid={testId}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8">
         {renderHeader()}
 
         {view === 'models' && renderModelsView()}

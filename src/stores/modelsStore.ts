@@ -93,7 +93,15 @@ const DEFAULT_FILTERS: FilterCriteria = {
   maxCost: undefined,
   capabilities: [],
   searchTerm: '',
-  freeOnly: false
+  freeOnly: false,
+  // Extended column-specific filters
+  inferenceProviders: [],
+  modelProviders: [],
+  countries: [],
+  inputModalities: [],
+  outputModalities: [],
+  licenses: [],
+  rateLimits: []
 };
 
 const initialState: ModelsState = {

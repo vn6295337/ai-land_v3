@@ -210,6 +210,31 @@ export interface FilterCriteria {
     from?: string;
     to?: string;
   };
+
+  // Extended column-specific filters for ai_models_main table
+  /** Filter by inference providers */
+  inferenceProviders?: string[];
+
+  /** Filter by model providers */
+  modelProviders?: string[];
+
+  /** Filter by countries */
+  countries?: string[];
+
+  /** Filter by input modalities */
+  inputModalities?: string[];
+
+  /** Filter by output modalities */
+  outputModalities?: string[];
+
+  /** Filter by licenses */
+  licenses?: string[];
+
+  /** Filter by rate limits */
+  rateLimits?: string[];
+
+  /** Show free only models */
+  freeOnly?: boolean;
 }
 
 /**

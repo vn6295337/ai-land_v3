@@ -3,6 +3,8 @@ import { BarChart3, TrendingUp, Eye, Search, Heart, Download, Users, Clock } fro
 import { ComponentProps } from '../../types/ui';
 import { useModelsStore, modelsSelectors } from '../../stores/modelsStore';
 import { useUserProfileStore, userProfileSelectors } from '../../stores/userProfileStore';
+import { useUIStore } from '../../stores/uiStore';
+import { ModelHistoryChart } from '../ModelHistoryChart';
 
 export interface AnalyticsProps extends ComponentProps {
   timeframe?: '7d' | '30d' | '90d' | 'all';
@@ -26,6 +28,8 @@ export const Analytics: React.FC<AnalyticsProps> = React.memo(({
     activity,
     isLoggedIn
   } = useUserProfileStore();
+
+  const { theme } = useUIStore();
 
   const userStats = userProfileSelectors.getUserStats(useUserProfileStore.getState());
   const recentActivity = userProfileSelectors.getRecentActivity(useUserProfileStore.getState());
@@ -365,6 +369,14 @@ export const Analytics: React.FC<AnalyticsProps> = React.memo(({
           {renderStatCard('Exports', userStats.exportCount, Download)}
         </div>
       )}
+
+      {/* Historical Trends Chart */}
+      <ModelHistoryChart
+        models={models}
+        darkMode={theme === 'dark'}
+        className="mb-6"
+        testId={`${testId}-history-chart`}
+      />
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">

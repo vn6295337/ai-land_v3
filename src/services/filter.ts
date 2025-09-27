@@ -98,6 +98,39 @@ export class FilterService {
       filteredModels = this.filterByDateRange(filteredModels, criteria.dateRange);
     }
 
+    // Apply new column-specific filters for ai_models_main
+    if (criteria.inferenceProviders && criteria.inferenceProviders.length > 0) {
+      filteredModels = this.filterByInferenceProviders(filteredModels, criteria.inferenceProviders);
+    }
+
+    if (criteria.modelProviders && criteria.modelProviders.length > 0) {
+      filteredModels = this.filterByModelProviders(filteredModels, criteria.modelProviders);
+    }
+
+    if (criteria.countries && criteria.countries.length > 0) {
+      filteredModels = this.filterByCountries(filteredModels, criteria.countries);
+    }
+
+    if (criteria.inputModalities && criteria.inputModalities.length > 0) {
+      filteredModels = this.filterByInputModalities(filteredModels, criteria.inputModalities);
+    }
+
+    if (criteria.outputModalities && criteria.outputModalities.length > 0) {
+      filteredModels = this.filterByOutputModalities(filteredModels, criteria.outputModalities);
+    }
+
+    if (criteria.licenses && criteria.licenses.length > 0) {
+      filteredModels = this.filterByLicenses(filteredModels, criteria.licenses);
+    }
+
+    if (criteria.rateLimits && criteria.rateLimits.length > 0) {
+      filteredModels = this.filterByRateLimits(filteredModels, criteria.rateLimits);
+    }
+
+    if (criteria.freeOnly) {
+      filteredModels = this.filterByFreeOnly(filteredModels);
+    }
+
     // Cache the result
     this.setCache(cacheKey, filteredModels);
 
@@ -392,6 +425,14 @@ export class FilterService {
     if (criteria.capabilities) count++;
     if (criteria.availableOnly) count++;
     if (criteria.dateRange) count++;
+    if (criteria.inferenceProviders && criteria.inferenceProviders.length > 0) count++;
+    if (criteria.modelProviders && criteria.modelProviders.length > 0) count++;
+    if (criteria.countries && criteria.countries.length > 0) count++;
+    if (criteria.inputModalities && criteria.inputModalities.length > 0) count++;
+    if (criteria.outputModalities && criteria.outputModalities.length > 0) count++;
+    if (criteria.licenses && criteria.licenses.length > 0) count++;
+    if (criteria.rateLimits && criteria.rateLimits.length > 0) count++;
+    if (criteria.freeOnly) count++;
 
     return count;
   }
@@ -413,6 +454,14 @@ export class FilterService {
     if (criteria.capabilities) activeFilters.push('capabilities');
     if (criteria.availableOnly) activeFilters.push('availableOnly');
     if (criteria.dateRange) activeFilters.push('dateRange');
+    if (criteria.inferenceProviders && criteria.inferenceProviders.length > 0) activeFilters.push('inferenceProviders');
+    if (criteria.modelProviders && criteria.modelProviders.length > 0) activeFilters.push('modelProviders');
+    if (criteria.countries && criteria.countries.length > 0) activeFilters.push('countries');
+    if (criteria.inputModalities && criteria.inputModalities.length > 0) activeFilters.push('inputModalities');
+    if (criteria.outputModalities && criteria.outputModalities.length > 0) activeFilters.push('outputModalities');
+    if (criteria.licenses && criteria.licenses.length > 0) activeFilters.push('licenses');
+    if (criteria.rateLimits && criteria.rateLimits.length > 0) activeFilters.push('rateLimits');
+    if (criteria.freeOnly) activeFilters.push('freeOnly');
 
     return activeFilters;
   }
@@ -466,6 +515,97 @@ export class FilterService {
    */
   clearCache(): void {
     this.filterCache.clear();
+  }
+
+  /**
+   * Filter by inference providers
+   */
+  private filterByInferenceProviders(models: AIModel[], providers: string[]): AIModel[] {
+    return models.filter(model => {
+      const modelProvider = model.inferenceProvider || model.provider || 'Unknown';
+      return providers.includes(modelProvider);
+    });
+  }
+
+  /**
+   * Filter by model providers
+   */
+  private filterByModelProviders(models: AIModel[], providers: string[]): AIModel[] {
+    return models.filter(model => {
+      const modelProvider = model.modelProvider || 'Unknown';
+      return providers.includes(modelProvider);
+    });
+  }
+
+  /**
+   * Filter by countries
+   */
+  private filterByCountries(models: AIModel[], countries: string[]): AIModel[] {
+    return models.filter(model => {
+      const country = model.country || 'Unknown';
+      return countries.includes(country);
+    });
+  }
+
+  /**
+   * Filter by input modalities
+   */
+  private filterByInputModalities(models: AIModel[], modalities: string[]): AIModel[] {
+    return models.filter(model => {
+      const inputModalities = model.inputModalities || 'Unknown';
+      return modalities.includes(inputModalities);
+    });
+  }
+
+  /**
+   * Filter by output modalities
+   */
+  private filterByOutputModalities(models: AIModel[], modalities: string[]): AIModel[] {
+    return models.filter(model => {
+      const outputModalities = model.outputModalities || 'Unknown';
+      return modalities.includes(outputModalities);
+    });
+  }
+
+  /**
+   * Filter by licenses
+   */
+  private filterByLicenses(models: AIModel[], licenses: string[]): AIModel[] {
+    return models.filter(model => {
+      const license = model.license || 'N/A';
+      return licenses.includes(license);
+    });
+  }
+
+  /**
+   * Filter by rate limits
+   */
+  private filterByRateLimits(models: AIModel[], rateLimits: string[]): AIModel[] {
+    return models.filter(model => {
+      const rateLimit = model.rateLimits || 'N/A';
+      return rateLimits.includes(rateLimit);
+    });
+  }
+
+  /**
+   * Filter by free only models
+   */
+  private filterByFreeOnly(models: AIModel[]): AIModel[] {
+    return models.filter(model => {
+      // Check various fields that might indicate "free" status
+      const apiAccess = (model.apiAccess || '').toLowerCase();
+      const license = (model.license || '').toLowerCase();
+      const rateLimits = (model.rateLimits || '').toLowerCase();
+
+      // Consider a model "free" if it doesn't require API key or has free tier indicators
+      return (
+        !apiAccess.includes('api key') ||
+        apiAccess.includes('free') ||
+        license.includes('free') ||
+        license.includes('open') ||
+        rateLimits.includes('free')
+      );
+    });
   }
 
   /**

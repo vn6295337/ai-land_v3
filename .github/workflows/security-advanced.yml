@@ -125,7 +125,7 @@ jobs:
           json: true
 
       - name: Upload Snyk results
-        if: always() && hashFiles('snyk.sarif') != ''
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
@@ -134,7 +134,7 @@ jobs:
   python-security:
     name: Python Security Analysis
     runs-on: ubuntu-latest
-    if: github.event_name != 'schedule' && hashFiles('**/*.py') != ''
+    if: github.event_name != 'schedule'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -169,7 +169,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Hadolint
-        if: hashFiles('**/Dockerfile*') != ''
+        if: hashFiles('Dockerfile*') != ''
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: "Dockerfile*"
@@ -178,7 +178,7 @@ jobs:
           output-file: hadolint-results.sarif
 
       - name: Upload Hadolint results
-        if: hashFiles('**/Dockerfile*') != ''
+        if: hashFiles('Dockerfile*') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: hadolint-results.sarif
@@ -192,7 +192,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Checkov scan
-        if: hashFiles('**/*.yml', '**/*.yaml', '**/*.json', '**/*.tf') != ''
+        if: hashFiles('*.yml', '*.yaml', '*.json', '*.tf') != ''
         uses: bridgecrewio/checkov-action@master
         with:
           directory: .
@@ -203,7 +203,7 @@ jobs:
           soft_fail: true
 
       - name: Upload Checkov results
-        if: hashFiles('**/*.yml', '**/*.yaml', '**/*.json', '**/*.tf') != ''
+        if: hashFiles('*.yml', '*.yaml', '*.json', '*.tf') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: checkov-results.sarif

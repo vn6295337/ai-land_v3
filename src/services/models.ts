@@ -1,11 +1,11 @@
 /**
  * Model Service Layer
  *
- * This module provides specialized API methods for AI model data operations,
- * extending the base ApiService with model-specific functionality.
+ * This module provides specialized data methods for AI model operations,
+ * fetching from Supabase ai_models_main table while maintaining security abstraction.
  */
 
-import { ApiService, createApiService } from './api';
+import { supabase } from '../integrations/supabase/client';
 import { AIModel, FilterCriteria, SortOptions, SortDirection, APIResponse } from '../types/models';
 
 /**
@@ -66,115 +66,123 @@ interface PopularModelsResponse {
 
 /**
  * ModelService class for AI model operations
+ * Fetches data from Supabase ai_models_main table with security abstraction
  */
-export class ModelService extends ApiService {
+export class ModelService {
   private modelCache = new Map<string, { data: AIModel; timestamp: number }>();
   private readonly cacheTTL = 300000; // 5 minutes
+  private refreshInterval: NodeJS.Timeout | null = null;
 
-  constructor(baseURL?: string, timeout?: number) {
-    super(baseURL, timeout);
-
-    // Add model-specific request interceptor
-    this.addRequestInterceptor((config) => {
-      // Add API version header for model endpoints
-      if (config.url.includes('/models')) {
-        config.headers = {
-          ...config.headers,
-          'X-API-Version': '2024-09-01'
-        };
-      }
-      return config;
-    });
-
-    // Add response interceptor for model data normalization
-    this.addResponseInterceptor(async (response) => {
-      // Normalize model data structure
-      if (response.success && response.data && typeof response.data === 'object') {
-        const data = response.data as any;
-
-        if (data.models && Array.isArray(data.models)) {
-          data.models = data.models.map(this.normalizeModelData);
-        } else if (data.id) {
-          // Single model response
-          response.data = this.normalizeModelData(data);
-        }
-      }
-
-      return response;
-    });
+  constructor() {
+    // Set up auto-refresh every 5 minutes to match ai-land behavior
+    this.refreshInterval = setInterval(() => {
+      this.clearModelCache();
+    }, this.cacheTTL);
   }
 
   /**
-   * Fetch all available models with pagination and filtering
+   * Clean up resources
+   */
+  destroy(): void {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = null;
+    }
+    this.clearModelCache();
+  }
+
+  /**
+   * Fetch all available models from Supabase ai_models_main table
    */
   async fetchModels(params: ModelSearchParams = {}): Promise<APIResponse<ModelListResponse>> {
-    const {
-      page = 1,
-      limit = 50,
-      sortBy = 'name',
-      sortDirection = 'asc',
-      includeMetrics = true,
-      filters,
-      query
-    } = params;
+    try {
+      console.log('Fetching model data from ai_models_main...');
 
-    const requestParams: Record<string, string | number | boolean> = {
-      page,
-      limit,
-      sort: sortBy,
-      direction: sortDirection,
-      includeMetrics
-    };
+      // Build Supabase query
+      let query = supabase
+        .from('ai_models_main')
+        .select('*');
 
-    // Add search query
-    if (query) {
-      requestParams.q = query;
+      // Apply text search if provided
+      if (params.query) {
+        query = query.or(`human_readable_name.ilike.%${params.query}%,inference_provider.ilike.%${params.query}%,model_provider.ilike.%${params.query}%`);
+      }
+
+      // Apply filters if provided
+      if (params.filters) {
+        if (params.filters.provider) {
+          const providers = Array.isArray(params.filters.provider)
+            ? params.filters.provider
+            : [params.filters.provider];
+          query = query.in('inference_provider', providers);
+        }
+      }
+
+      // Apply sorting
+      const sortField = this.mapSortField(params.sortBy || 'name');
+      query = query.order(sortField, { ascending: params.sortDirection === 'asc' });
+
+      // Execute query
+      const response = await query;
+
+      if (response.error) {
+        console.error('Supabase error:', response.error);
+        return {
+          data: { models: [], total: 0, page: 1, limit: 50, hasMore: false },
+          success: false,
+          loading: false,
+          error: `Supabase error: ${response.error.message}`
+        };
+      }
+
+      if (!response.data || response.data.length === 0) {
+        console.warn('No data returned from Supabase');
+        return {
+          data: { models: [], total: 0, page: 1, limit: 50, hasMore: false },
+          success: false,
+          loading: false,
+          error: 'No data available from ai_models_main table'
+        };
+      }
+
+      console.log(`Successfully fetched ${response.data.length} records`);
+
+      // Transform Supabase data to AIModel format
+      const models = response.data.map(this.transformSupabaseToAIModel);
+
+      // Apply pagination
+      const page = params.page || 1;
+      const limit = params.limit || 50;
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedModels = models.slice(startIndex, endIndex);
+
+      return {
+        data: {
+          models: paginatedModels,
+          total: models.length,
+          page,
+          limit,
+          hasMore: endIndex < models.length,
+          filters: params.filters,
+          sort: {
+            field: params.sortBy || 'name',
+            direction: params.sortDirection || 'asc'
+          }
+        },
+        success: true,
+        loading: false
+      };
+
+    } catch (error: any) {
+      console.error('Error fetching models:', error);
+      return {
+        data: { models: [], total: 0, page: 1, limit: 50, hasMore: false },
+        success: false,
+        loading: false,
+        error: error.message || 'Failed to fetch models'
+      };
     }
-
-    // Add filter parameters
-    if (filters) {
-      if (filters.provider) {
-        requestParams.provider = Array.isArray(filters.provider)
-          ? filters.provider.join(',')
-          : filters.provider;
-      }
-
-      if (filters.category) {
-        requestParams.category = Array.isArray(filters.category)
-          ? filters.category.join(',')
-          : filters.category;
-      }
-
-      if (filters.minAccuracy !== undefined) {
-        requestParams.minAccuracy = filters.minAccuracy;
-      }
-
-      if (filters.maxCost !== undefined) {
-        requestParams.maxCost = filters.maxCost;
-      }
-
-      if (filters.availableOnly) {
-        requestParams.availableOnly = filters.availableOnly;
-      }
-
-      if (filters.capabilities) {
-        if (filters.capabilities.streaming) {
-          requestParams.streaming = true;
-        }
-        if (filters.capabilities.functionCalling) {
-          requestParams.functionCalling = true;
-        }
-        if (filters.capabilities.vision) {
-          requestParams.vision = true;
-        }
-      }
-    }
-
-    return this.get<ModelListResponse>('/api/models', {
-      params: requestParams,
-      cache: true,
-      cacheTTL: this.cacheTTL
-    });
   }
 
   /**
@@ -185,26 +193,11 @@ export class ModelService extends ApiService {
     filters?: FilterCriteria,
     options: { fuzzy?: boolean; threshold?: number } = {}
   ): Promise<APIResponse<ModelListResponse>> {
-    const params: ModelSearchParams = {
+    return this.fetchModels({
       query,
       filters,
       page: 1,
       limit: 100
-    };
-
-    const searchParams: Record<string, string | number | boolean> = {
-      q: query,
-      fuzzy: options.fuzzy || false
-    };
-
-    if (options.threshold) {
-      searchParams.threshold = options.threshold;
-    }
-
-    return this.get<ModelListResponse>('/api/models/search', {
-      params: searchParams,
-      cache: true,
-      cacheTTL: 60000 // 1 minute cache for search results
     });
   }
 
@@ -224,17 +217,41 @@ export class ModelService extends ApiService {
       }
     }
 
-    const response = await this.get<AIModel>(`/api/models/${encodeURIComponent(modelId)}`, {
-      cache: !forceRefresh,
-      cacheTTL: this.cacheTTL
-    });
+    try {
+      const response = await supabase
+        .from('ai_models_main')
+        .select('*')
+        .eq('id', parseInt(modelId))
+        .single();
 
-    // Cache successful response
-    if (response.success && response.data) {
-      this.setCachedModel(modelId, response.data);
+      if (response.error) {
+        return {
+          data: null as any,
+          success: false,
+          loading: false,
+          error: `Model not found: ${response.error.message}`
+        };
+      }
+
+      const model = this.transformSupabaseToAIModel(response.data);
+
+      // Cache successful response
+      this.setCachedModel(modelId, model);
+
+      return {
+        data: model,
+        success: true,
+        loading: false
+      };
+
+    } catch (error: any) {
+      return {
+        data: null as any,
+        success: false,
+        loading: false,
+        error: error.message || 'Failed to fetch model details'
+      };
     }
-
-    return response;
   }
 
   /**
@@ -358,48 +375,74 @@ export class ModelService extends ApiService {
   }
 
   /**
-   * Normalize model data structure
+   * Transform Supabase ai_models_main data to AIModel format
    */
-  private normalizeModelData(model: any): AIModel {
-    // Ensure required fields exist
-    const normalized: AIModel = {
-      id: model.id || model.model_id || '',
-      name: model.name || model.display_name || model.id || '',
-      description: model.description || '',
-      provider: model.provider || 'unknown',
-      category: model.category || 'language',
-      ...model
+  private transformSupabaseToAIModel = (model: any): AIModel => {
+    return {
+      id: model.id?.toString() || '',
+      name: model.human_readable_name || 'Unknown',
+      description: '', // Not available in ai_models_main
+      provider: model.inference_provider || 'Unknown',
+      category: 'language', // Default category
+
+      // Map ai_models_main fields to AIModel structure
+      inferenceProvider: model.inference_provider || 'Unknown',
+      modelProvider: model.model_provider || 'Unknown',
+      modelName: model.human_readable_name || 'Unknown',
+      country: model.model_provider_country || 'Unknown',
+      officialUrl: model.official_url || '',
+      inputModalities: model.input_modalities || 'Unknown',
+      outputModalities: model.output_modalities || 'Unknown',
+      license: model.license_name || 'N/A',
+      licenseUrl: model.license_url || '',
+      licenseInfo: model.license_info_text || '',
+      licenseInfoUrl: model.license_info_url || '',
+      rateLimits: model.rate_limits || 'N/A',
+      apiAccess: model.provider_api_access || 'N/A',
+      createdAt: model.created_at || '',
+      updatedAt: model.updated_at || '',
+
+      // Default values for AIModel interface
+      streaming: false,
+      functionCalling: false,
+      vision: model.input_modalities?.toLowerCase().includes('vision') || false,
+      available: true,
+
+      // Pricing information (not available in ai_models_main)
+      pricing: {
+        input: undefined,
+        output: undefined,
+        unit: 'per_1k_tokens'
+      },
+
+      // Metrics (not available in ai_models_main)
+      metrics: {
+        accuracy: undefined,
+        speed: undefined,
+        cost: undefined,
+        popularity: undefined,
+        quality: undefined,
+        safety: undefined,
+        lastUpdated: model.updated_at
+      }
+    };
+  };
+
+  /**
+   * Map sort field names to Supabase column names
+   */
+  private mapSortField(sortBy: SortOptions): string {
+    const fieldMap: Record<string, string> = {
+      'name': 'human_readable_name',
+      'provider': 'inference_provider',
+      'modelProvider': 'model_provider',
+      'country': 'model_provider_country',
+      'license': 'license_name',
+      'createdAt': 'created_at',
+      'updatedAt': 'updated_at'
     };
 
-    // Normalize pricing structure
-    if (model.pricing) {
-      normalized.pricing = {
-        input: typeof model.pricing.input === 'number' ? model.pricing.input : undefined,
-        output: typeof model.pricing.output === 'number' ? model.pricing.output : undefined,
-        unit: model.pricing.unit || 'per_1k_tokens'
-      };
-    }
-
-    // Ensure metrics are properly formatted
-    if (model.metrics) {
-      normalized.metrics = {
-        accuracy: typeof model.metrics.accuracy === 'number' ? model.metrics.accuracy : undefined,
-        speed: typeof model.metrics.speed === 'number' ? model.metrics.speed : undefined,
-        cost: typeof model.metrics.cost === 'number' ? model.metrics.cost : undefined,
-        popularity: typeof model.metrics.popularity === 'number' ? model.metrics.popularity : undefined,
-        quality: typeof model.metrics.quality === 'number' ? model.metrics.quality : undefined,
-        safety: typeof model.metrics.safety === 'number' ? model.metrics.safety : undefined,
-        lastUpdated: model.metrics.lastUpdated || model.metrics.last_updated
-      };
-    }
-
-    // Ensure boolean flags are properly typed
-    normalized.streaming = Boolean(model.streaming);
-    normalized.functionCalling = Boolean(model.functionCalling || model.function_calling);
-    normalized.vision = Boolean(model.vision);
-    normalized.available = model.available !== false; // Default to true
-
-    return normalized;
+    return fieldMap[sortBy] || 'human_readable_name';
   }
 
   /**
@@ -449,8 +492,8 @@ export class ModelService extends ApiService {
 /**
  * Create ModelService instance
  */
-export const createModelService = (baseURL?: string, timeout?: number): ModelService => {
-  return new ModelService(baseURL, timeout);
+export const createModelService = (): ModelService => {
+  return new ModelService();
 };
 
 /**

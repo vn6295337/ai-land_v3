@@ -96,6 +96,49 @@ export interface AIModel {
 
   /** Additional metadata */
   metadata?: Record<string, unknown>;
+
+  // Extended fields from ai_models_main table
+  /** Inference provider */
+  inferenceProvider?: string;
+
+  /** Model provider */
+  modelProvider?: string;
+
+  /** Model name (human readable) */
+  modelName?: string;
+
+  /** Country of origin */
+  country?: string;
+
+  /** Official URL */
+  officialUrl?: string;
+
+  /** Input modalities */
+  inputModalities?: string;
+
+  /** Output modalities */
+  outputModalities?: string;
+
+  /** License name */
+  license?: string;
+
+  /** License URL */
+  licenseUrl?: string;
+
+  /** License information text */
+  licenseInfo?: string;
+
+  /** License information URL */
+  licenseInfoUrl?: string;
+
+  /** Rate limits */
+  rateLimits?: string;
+
+  /** API access information */
+  apiAccess?: string;
+
+  /** Created at timestamp */
+  createdAt?: string;
 }
 
 /**

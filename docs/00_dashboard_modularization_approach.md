@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-The AI Models Dashboard currently operates as a single, monolithic component of 554 lines handling all functionality. This approach has created maintenance challenges and performance bottlenecks. This document outlines a strategic modularization plan to transform the dashboard into a scalable, maintainable, and high-performance system while preserving all existing functionality.
+The AI Models Dashboard (v2) currently operates as a single, monolithic component of 554 lines handling all functionality. This approach has created maintenance challenges and performance bottlenecks. This document outlines a strategic modularization plan to transform the dashboard into a scalable, maintainable, and high-performance system while preserving all existing functionality.
 
 ## Current State Assessment
 

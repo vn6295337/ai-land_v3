@@ -38,6 +38,18 @@ An interactive React dashboard that visualizes AI models from multiple providers
    npm run dev
    ```
 
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm test` - Run unit and integration tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run cypress` - Open Cypress E2E testing
+- `npm run e2e` - Run E2E tests headlessly
+- `npm run lint` - Run ESLint
+- `npm run type-check` - Run TypeScript checking
+
 ## Environment Variables
 
 Create a `.env` file with the following variables:
@@ -53,7 +65,9 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS, shadcn/ui
 - **Charts**: Chart.js with react-chartjs-2
+- **State Management**: Zustand
 - **Database**: Supabase (PostgreSQL)
+- **Testing**: Vitest (unit/integration), Cypress (E2E)
 - **Deployment**: Compatible with Vercel, Netlify, GitHub Pages
 
 ## Data Sources

@@ -9,7 +9,7 @@
     "dev:advanced": "npx vite --config config/build/vite.config.ts",
     "build": "npm run security:check && npx vite build --config config/build/vite.config.ts",
     "build:dev": "npx vite build --mode development --config config/build/vite.config.ts",
-    "build:unsafe": "npx vite build --config config/build/vite.config.ts",
+    "build:unsafe": "NODE_ENV=production npx vite build",
     "build:test": "NODE_ENV=production npx vite build --config config/build/vite.config.ts",
     "build:vercel": "vite build",
     "lint": "npx eslint . --config config/quality/eslint.config.js",

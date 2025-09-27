@@ -1,0 +1,20 @@
+name: "AI Land Security Config"
+
+disable-default-queries: false
+
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+
+paths:
+  - src
+  - config
+
+paths-ignore:
+  - node_modules
+  - dist
+  - coverage
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"

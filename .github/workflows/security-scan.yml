@@ -59,8 +59,8 @@ jobs:
     - name: Check environment variable validation
       run: |
         echo "🔍 Testing environment validation..."
-        # Test with missing env vars (should fail)
-        if npm run build 2>/dev/null; then
+        # Test with missing env vars using root config (should fail)
+        if NODE_ENV=production npx vite build 2>/dev/null; then
           echo "❌ Build should fail with missing environment variables"
           exit 1
         else

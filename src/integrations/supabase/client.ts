@@ -3,16 +3,26 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 // Use VITE_ environment variables from Supabase secrets for Lovable
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || (() => {
-  console.error('VITE_SUPABASE_URL not found in environment variables');
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+console.log('🔧 Supabase Client Initialization:', {
+  url: SUPABASE_URL ? '✅ URL Present' : '❌ URL Missing',
+  key: SUPABASE_PUBLISHABLE_KEY ? '✅ Key Present' : '❌ Key Missing',
+  urlValue: SUPABASE_URL,
+  keyPrefix: SUPABASE_PUBLISHABLE_KEY?.substring(0, 20) + '...'
+});
+
+if (!SUPABASE_URL) {
+  console.error('❌ VITE_SUPABASE_URL not found in environment variables');
   console.log('Available env vars:', Object.keys(import.meta.env));
   throw new Error('Missing required environment variable: VITE_SUPABASE_URL');
-})();
+}
 
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || (() => {
-  console.error('VITE_SUPABASE_ANON_KEY not found in environment variables');
+if (!SUPABASE_PUBLISHABLE_KEY) {
+  console.error('❌ VITE_SUPABASE_ANON_KEY not found in environment variables');
   throw new Error('Missing required environment variable: VITE_SUPABASE_ANON_KEY');
-})();
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

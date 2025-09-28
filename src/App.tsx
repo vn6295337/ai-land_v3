@@ -8,6 +8,17 @@ const App: React.FC = () => {
     detectAccessibilityPreferences
   } = useUIStore();
 
+  // Debug logging for deployment
+  useEffect(() => {
+    console.log('🚀 AI-Land v3 App Starting...');
+    console.log('Environment Check:', {
+      SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL ? '✅ Present' : '❌ Missing',
+      SUPABASE_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Present' : '❌ Missing',
+      NODE_ENV: import.meta.env.NODE_ENV,
+      MODE: import.meta.env.MODE
+    });
+  }, []);
+
   // Initialize accessibility preferences on mount
   useEffect(() => {
     detectAccessibilityPreferences();
@@ -28,7 +39,7 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <Dashboard
-        title="AI Models Discovery v2"
+        title="AI Models Discovery v3"
         showSearch={true}
         showFilters={true}
         autoFetch={true}

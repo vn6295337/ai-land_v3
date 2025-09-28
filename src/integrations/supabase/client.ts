@@ -6,12 +6,12 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || (() => {
   console.error('VITE_SUPABASE_URL not found in environment variables');
   console.log('Available env vars:', Object.keys(import.meta.env));
-  return 'https://atilxlecbaqcksnrgzav.supabase.co';
+  throw new Error('Missing required environment variable: VITE_SUPABASE_URL');
 })();
 
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || (() => {
   console.error('VITE_SUPABASE_ANON_KEY not found in environment variables');
-  return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0aWx4bGVjYmFxY2tzbnJnemF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzOTY5MTYsImV4cCI6MjA2Nzk3MjkxNn0.sYRFyQIEzZMlgg5RtHTXDSpvxl-KrJ8E7U3_UroIJog';
+  throw new Error('Missing required environment variable: VITE_SUPABASE_ANON_KEY');
 })();
 
 // Import the supabase client like this:
